@@ -22,15 +22,19 @@
             color: white;
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            overflow-y: auto; /* Scrollbar, falls viele Projekte */
+            overflow-y: auto;
         }
         .main-content {
             flex: 1;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
+            flex-direction: column;
             padding: 20px;
+            transition: all 0.5s ease; /* Für das Gleiten des Titels */
+        }
+        .title-container {
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.5s ease;
         }
         h1 {
             font-size: 3rem;
@@ -40,7 +44,7 @@
         .repo-list {
             display: flex;
             flex-direction: column;
-            gap: 10px; /* Abstand zwischen Kacheln */
+            gap: 10px;
             padding: 0;
         }
         .repo-item {
@@ -48,15 +52,23 @@
             padding: 15px;
             border-radius: 6px;
             transition: background-color 0.3s ease;
-            cursor: default; /* Kein Link-Zeiger */
+            cursor: pointer; /* Zeigt an, dass es klickbar ist */
         }
         .repo-item:hover {
-            background-color: #444c56; /* Aufhell-Effekt */
+            background-color: #444c56;
         }
         .repo-name {
             font-weight: bold;
             color: white;
             margin: 0;
+        }
+        .readme-container {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            display: none; /* Standardmäßig versteckt */
         }
         @media (max-width: 768px) {
             .container {
@@ -70,24 +82,31 @@
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar mit GitHub-Repos als Kacheln -->
+        <!-- Sidebar mit GitHub-Repos -->
         <div class="sidebar">
             <h2>Meine Projekte</h2>
             <ul class="repo-list" id="repos"></ul>
         </div>
 
-        <!-- Hauptinhalt mit deinem Namen -->
-        <div class="main-content">
-            <h1>Noadsch12</h1>
+        <!-- Hauptinhalt mit Titel und README -->
+        <div class="main-content" id="mainContent">
+            <div class="title-container" id="titleContainer">
+                <h1>Noadsch12</h1>
+            </div>
+            <div class="readme-container" id="readmeContainer"></div>
         </div>
     </div>
 
-    <!-- JavaScript für GitHub API (ohne Links) -->
+    <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const username = 'noah-2012'; // <-- Dein GitHub-Username
+            const username = 'Noadsch12'; // <-- Dein GitHub-Username
             const reposContainer = document.getElementById('repos');
+            const titleContainer = document.getElementById('titleContainer');
+            const readmeContainer = document.getElementById('readmeContainer');
+            const mainContent = document.getElementById('mainContent');
 
+            // Lade Repositories
             fetch(`https://api.github.com/users/${username}/repos`)
                 .then(response => response.json())
                 .then(repos => {
@@ -101,6 +120,30 @@
                         
                         repoItem.appendChild(repoName);
                         reposContainer.appendChild(repoItem);
+
+                        // Klick-Event: Lade README und animiere Titel
+                        repoItem.addEventListener('click', () => {
+                            // Titel nach oben gleiten lassen
+                            titleContainer.style.marginTop = '0';
+                            mainContent.style.justifyContent = 'flex-start';
+
+                            // Lade README.md
+                            fetch(`https://api.github.com/repos/${username}/${repo.name}/readme`, {
+                                headers: {
+                                    'Accept': 'application/vnd.github.v3.raw' // Roh-Text statt JSON
+                                }
+                            })
+                                .then(response => response.text())
+                                .then(text => {
+                                    readmeContainer.innerHTML = `<h2>${repo.name}</h2><hr>` + 
+                                        marked.parse(text); // Rendert Markdown zu HTML
+                                    readmeContainer.style.display = 'block';
+                                })
+                                .catch(error => {
+                                    readmeContainer.innerHTML = `<p>README konnte nicht geladen werden.</p>`;
+                                    readmeContainer.style.display = 'block';
+                                });
+                        });
                     });
                 })
                 .catch(error => {
@@ -109,5 +152,7 @@
                 });
         });
     </script>
+    <!-- Markdown-Parser (für README.md) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
