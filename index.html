@@ -168,6 +168,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const username = 'noah-2012';
+            const repoName = 'pp.github.io'; // Korrekter Repository-Name
             const reposContainer = document.getElementById('repos');
             const titleContainer = document.getElementById('titleContainer');
             const readmeContainer = document.getElementById('readmeContainer');
@@ -181,7 +182,10 @@
 
             // Lade GitHub Repositories
             fetch(`https://api.github.com/users/${username}/repos`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
                 .then(repos => {
                     repos.forEach(repo => {
                         const repoItem = document.createElement('li');
@@ -201,8 +205,8 @@
                     });
                 })
                 .catch(error => {
-                    console.error('Fehler:', error);
-                    reposContainer.innerHTML = '<li>Projekte konnten nicht geladen werden.</li>';
+                    console.error('Fehler beim Laden der Repositories:', error);
+                    reposContainer.innerHTML = '<li>Projekte konnten nicht geladen werden. Bitte versuche es später erneut.</li>';
                 });
 
             function showRepoDetails(repoName) {
@@ -236,41 +240,73 @@
                     });
             }
 
-            function loadFutureProjects() {
+            async function loadFutureProjects() {
                 resetToHome();
                 futureProjectsContainer.style.display = 'block';
                 readmeContainer.style.display = 'none';
                 setActiveTab(futureProjectsTab);
 
-                // Lade Future Projects aus dem projects-Ordner
-                fetch(`https://api.github.com/repos/${username}/${repoName}.github.io/contents/projects`)
-                    .then(response => response.json())
-                    .then(files => {
-                        futureProjectsContainer.innerHTML = '<h2>Future Projects</h2>';
-                        
-                        files.forEach(file => {
-                            if (file.name.endsWith('.txt')) {
-                                fetch(file.download_url)
-                                    .then(response => response.text())
-                                    .then(content => {
-                                        const projectItem = document.createElement('div');
-                                        projectItem.className = 'project-item';
-                                        
-                                        const title = file.name.replace('.txt', '');
-                                        projectItem.innerHTML = `
-                                            <h3 class="project-title">${title}</h3>
-                                            <p class="project-content">${content}</p>
-                                        `;
-                                        
-                                        futureProjectsContainer.appendChild(projectItem);
-                                    });
-                            }
-                        });
-                    })
-                    .catch(() => {
-                        futureProjectsContainer.innerHTML = 
-                            '<p class="error-message">Future Projects konnten nicht geladen werden.</p>';
-                    });
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${username}/${repoName}/contents/projects`);
+                    
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            futureProjectsContainer.innerHTML = `
+                                <div class="error-message">
+                                    <h3>Ordner 'projects' nicht gefunden</h3>
+                                    <p>Bitte erstellen Sie einen 'projects'-Ordner im Hauptverzeichnis Ihres Repository.</p>
+                                    <p>Der Pfad sollte sein: <code>${username}/${repoName}/projects/</code></p>
+                                    <a href="https://github.com/${username}/${repoName}/new/main?filename=projects/beispiel.txt" 
+                                       target="_blank"
+                                       style="color: #58a6ff;">
+                                       Hier Ordner erstellen
+                                    </a>
+                                </div>`;
+                        } else {
+                            throw new Error(`API Error: ${response.status}`);
+                        }
+                        return;
+                    }
+
+                    const files = await response.json();
+                    futureProjectsContainer.innerHTML = '<h2>Future Projects</h2>';
+
+                    if (!Array.isArray(files) {
+                        throw new Error('Ungültige API-Antwort');
+                    }
+
+                    const txtFiles = files.filter(file => file.name.toLowerCase().endsWith('.txt'));
+                    
+                    if (txtFiles.length === 0) {
+                        futureProjectsContainer.innerHTML += '<p>Keine .txt-Dateien im projects-Ordner gefunden</p>';
+                        return;
+                    }
+
+                    for (const file of txtFiles) {
+                        try {
+                            const contentResponse = await fetch(file.download_url);
+                            if (!contentResponse.ok) continue;
+                            
+                            const content = await contentResponse.text();
+                            const projectItem = document.createElement('div');
+                            projectItem.className = 'project-item';
+                            projectItem.innerHTML = `
+                                <h3 class="project-title">${file.name.replace('.txt', '')}</h3>
+                                <pre class="project-content">${content}</pre>
+                            `;
+                            futureProjectsContainer.appendChild(projectItem);
+                        } catch (error) {
+                            console.error(`Fehler beim Laden von ${file.name}:`, error);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Fehler beim Laden der Future Projects:', error);
+                    futureProjectsContainer.innerHTML = `
+                        <div class="error-message">
+                            <p>Future Projects konnten nicht geladen werden.</p>
+                            <p><small>${error.message}</small></p>
+                        </div>`;
+                }
             }
 
             function resetToHome() {
