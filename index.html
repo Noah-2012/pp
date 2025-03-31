@@ -243,7 +243,7 @@
                 setActiveTab(futureProjectsTab);
 
                 // Lade Future Projects aus dem projects-Ordner
-                fetch(`https://api.github.com/repos/${username}/pp.github.io/contents/projects`)
+                fetch(`https://api.github.com/repos/${username}/${repoName}.github.io/contents/projects`)
                     .then(response => response.json())
                     .then(files => {
                         futureProjectsContainer.innerHTML = '<h2>Future Projects</h2>';
