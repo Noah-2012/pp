@@ -1,8 +1,0 @@
-cv2 Repo Update
----------------
-Geplant ist das wir zum cv2 repo noch Objekt tracker hinzu fügen und wahrscheinlich auch einstellungen für den Kamera Port.
-
-- Hinzufügen von Objekttracker
-- Kamera Port verstellmöglichkeit
-
-Update upload: 13.4.2025 16:10
