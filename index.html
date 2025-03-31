@@ -35,13 +35,18 @@
         }
         .nav-bar {
             display: flex;
-            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
             background-color: white;
             padding: 10px 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
+        }
+        .nav-tabs {
+            display: flex;
+            gap: 20px;
         }
         .nav-tab {
             color: #24292e;
@@ -53,6 +58,14 @@
         }
         .nav-tab:hover, .nav-tab.active {
             background-color: #f0f0f0;
+        }
+        .clock {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #24292e;
+            background-color: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 4px;
         }
         .title-container {
             text-align: center;
@@ -142,6 +155,18 @@
                 top: 20px;
                 transform: none;
             }
+            .nav-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .nav-tabs {
+                width: 100%;
+                justify-content: space-around;
+            }
+            .clock {
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -155,10 +180,13 @@
 
         <!-- Hauptinhalt -->
         <div class="main-content">
-            <!-- Navigationsleiste -->
+            <!-- Navigationsleiste mit Uhr -->
             <div class="nav-bar">
-                <div class="nav-tab active" id="homeTab">Home</div>
-                <div class="nav-tab" id="futureProjectsTab">Future Projects</div>
+                <div class="nav-tabs">
+                    <div class="nav-tab active" id="homeTab">Home</div>
+                    <div class="nav-tab" id="futureProjectsTab">Future Projects</div>
+                </div>
+                <div class="clock" id="clock">00:00:00</div>
             </div>
 
             <div class="title-container" id="titleContainer">
@@ -183,6 +211,18 @@
             const homeTab = document.getElementById('homeTab');
             const futureProjectsTab = document.getElementById('futureProjectsTab');
             const futureProjectsContainer = document.getElementById('futureProjectsContainer');
+            const clockElement = document.getElementById('clock');
+
+            // Uhrfunktion
+            function updateClock() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
 
             // Tab-Switching
             homeTab.addEventListener('click', resetToHome);
@@ -199,18 +239,17 @@
                         throw new Error('Invalid response format');
                     }
                     
-                    // Clear existing content
                     reposContainer.innerHTML = '';
                     
                     repos.forEach(repo => {
                         const repoItem = document.createElement('li');
                         repoItem.className = 'repo-item';
                         
-                        const repoName = document.createElement('p');
-                        repoName.className = 'repo-name';
-                        repoName.textContent = repo.name;
+                        const repoNameElement = document.createElement('p');
+                        repoNameElement.className = 'repo-name';
+                        repoNameElement.textContent = repo.name;
                         
-                        repoItem.appendChild(repoName);
+                        repoItem.appendChild(repoNameElement);
                         reposContainer.appendChild(repoItem);
 
                         repoItem.addEventListener('click', () => {
@@ -225,14 +264,10 @@
                 });
 
             function showRepoDetails(repoName) {
-                // Titel nach oben bewegen
                 titleContainer.classList.add('title-moved-up');
-
-                // Container anzeigen/verstecken
                 readmeContainer.style.display = 'block';
                 futureProjectsContainer.style.display = 'none';
 
-                // Lade README.md
                 fetch(`https://api.github.com/repos/${username}/${repoName}/readme`, {
                     headers: {
                         'Accept': 'application/vnd.github.v3.raw'
@@ -253,10 +288,7 @@
             }
 
             async function loadFutureProjects() {
-                // Titel nach oben bewegen
                 titleContainer.classList.add('title-moved-up');
-                
-                // Container anzeigen/verstecken
                 futureProjectsContainer.style.display = 'block';
                 readmeContainer.style.display = 'none';
                 setActiveTab(futureProjectsTab);
@@ -325,22 +357,16 @@
             }
 
             function resetToHome() {
-                // Titel zurücksetzen
                 titleContainer.classList.remove('title-moved-up');
-                
-                // Container verstecken
                 readmeContainer.style.display = 'none';
                 futureProjectsContainer.style.display = 'none';
-                
                 setActiveTab(homeTab);
             }
 
             function setActiveTab(activeTab) {
-                // Alle Tabs inaktiv setzen
                 homeTab.classList.remove('active');
                 futureProjectsTab.classList.remove('active');
                 
-                // Aktiven Tab markieren
                 if (activeTab) {
                     activeTab.classList.add('active');
                 }
