@@ -11,7 +11,7 @@
             padding: 0;
             background-color: #f5f5f5;
             color: #333;
-            overflow-x: hidden; /* Verhindert horizontales Scrollen */
+            overflow-x: hidden;
         }
         .container {
             display: flex;
@@ -23,15 +23,32 @@
             color: white;
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            position: sticky; /* Feste Position */
+            position: sticky;
             top: 0;
             height: 100vh;
-            overflow-y: auto; /* Scrollbar nur für Sidebar */
+            overflow-y: auto;
         }
         .main-content {
             flex: 1;
             padding: 20px;
             position: relative;
+        }
+        .nav-bar {
+            background-color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .home-button {
+            color: #24292e;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .home-button:hover {
+            text-decoration: underline;
         }
         .title-container {
             text-align: center;
@@ -39,7 +56,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1); /* Smooth Animation */
+            transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
             width: 100%;
         }
         h1 {
@@ -73,9 +90,9 @@
             padding: 20px;
             border-radius: 6px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 80px; /* Platz für Titel */
+            margin-top: 80px;
             display: none;
-            max-height: calc(100vh - 120px);
+            max-height: calc(100vh - 150px);
             overflow-y: auto;
         }
         .error-message {
@@ -111,6 +128,11 @@
 
         <!-- Hauptinhalt -->
         <div class="main-content">
+            <!-- Neue Navigationsleiste -->
+            <div class="nav-bar">
+                <div class="home-button" id="homeButton">Home</div>
+            </div>
+
             <div class="title-container" id="titleContainer">
                 <h1>Noadsch12</h1>
             </div>
@@ -124,6 +146,10 @@
             const reposContainer = document.getElementById('repos');
             const titleContainer = document.getElementById('titleContainer');
             const readmeContainer = document.getElementById('readmeContainer');
+            const homeButton = document.getElementById('homeButton');
+
+            // Zurück zur Startansicht
+            homeButton.addEventListener('click', resetToHome);
 
             // Lade Repositories
             fetch(`https://api.github.com/users/${username}/repos`)
@@ -142,32 +168,7 @@
 
                         // Klick-Event
                         repoItem.addEventListener('click', () => {
-                            // Titel animieren
-                            titleContainer.style.position = 'absolute';
-                            titleContainer.style.top = '40px';
-                            titleContainer.style.left = '50%';
-                            titleContainer.style.transform = 'translateX(-50%)';
-
-                            // Lade README.md
-                            fetch(`https://api.github.com/repos/${username}/${repo.name}/readme`, {
-                                headers: {
-                                    'Accept': 'application/vnd.github.v3.raw'
-                                }
-                            })
-                                .then(response => {
-                                    if (!response.ok) throw new Error('README nicht gefunden');
-                                    return response.text();
-                                })
-                                .then(text => {
-                                    readmeContainer.innerHTML = `<h2>${repo.name}</h2><hr>` + 
-                                        marked.parse(text);
-                                    readmeContainer.style.display = 'block';
-                                })
-                                .catch(() => {
-                                    readmeContainer.innerHTML = 
-                                        `<p class="error-message">Kein README oder Fehler 404</p>`;
-                                    readmeContainer.style.display = 'block';
-                                });
+                            showRepoDetails(repo.name);
                         });
                     });
                 })
@@ -175,6 +176,47 @@
                     console.error('Fehler:', error);
                     reposContainer.innerHTML = '<li>Projekte konnten nicht geladen werden.</li>';
                 });
+
+            function showRepoDetails(repoName) {
+                // Titel animieren
+                titleContainer.style.position = 'absolute';
+                titleContainer.style.top = '80px'; // Unter der Nav-Leiste
+                titleContainer.style.left = '50%';
+                titleContainer.style.transform = 'translateX(-50%)';
+
+                // Lade README.md
+                fetch(`https://api.github.com/repos/${username}/${repoName}/readme`, {
+                    headers: {
+                        'Accept': 'application/vnd.github.v3.raw'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('README nicht gefunden');
+                        return response.text();
+                    })
+                    .then(text => {
+                        readmeContainer.innerHTML = `<h2>${repoName}</h2><hr>` + 
+                            marked.parse(text);
+                        readmeContainer.style.display = 'block';
+                    })
+                    .catch(() => {
+                        readmeContainer.innerHTML = 
+                            `<p class="error-message">Kein README oder Fehler 404</p>`;
+                        readmeContainer.style.display = 'block';
+                    });
+            }
+
+            function resetToHome() {
+                // Titel zurücksetzen
+                titleContainer.style.position = 'absolute';
+                titleContainer.style.top = '50%';
+                titleContainer.style.left = '50%';
+                titleContainer.style.transform = 'translate(-50%, -50%)';
+                
+                // README ausblenden
+                readmeContainer.style.display = 'none';
+                readmeContainer.innerHTML = '';
+            }
         });
     </script>
     <!-- Markdown-Parser -->
