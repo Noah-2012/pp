@@ -29,11 +29,11 @@
             display: flex;
             flex-direction: column;
             padding: 20px;
-            transition: all 0.5s ease; /* Für das Gleiten des Titels */
+            transition: all 0.5s ease;
         }
         .title-container {
             text-align: center;
-            margin-bottom: 20px;
+            margin: auto 0; /* Zentriert den Titel vertikal */
             transition: all 0.5s ease;
         }
         h1 {
@@ -52,7 +52,7 @@
             padding: 15px;
             border-radius: 6px;
             transition: background-color 0.3s ease;
-            cursor: pointer; /* Zeigt an, dass es klickbar ist */
+            cursor: pointer;
         }
         .repo-item:hover {
             background-color: #444c56;
@@ -68,7 +68,11 @@
             border-radius: 6px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
-            display: none; /* Standardmäßig versteckt */
+            display: none;
+        }
+        .error-message {
+            color: #d73a49;
+            font-weight: bold;
         }
         @media (max-width: 768px) {
             .container {
@@ -82,13 +86,13 @@
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar mit GitHub-Repos -->
+        <!-- Sidebar mit Repos -->
         <div class="sidebar">
             <h2>Meine Projekte</h2>
             <ul class="repo-list" id="repos"></ul>
         </div>
 
-        <!-- Hauptinhalt mit Titel und README -->
+        <!-- Hauptinhalt -->
         <div class="main-content" id="mainContent">
             <div class="title-container" id="titleContainer">
                 <h1>Noadsch12</h1>
@@ -97,7 +101,6 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const username = 'noah-2012'; // <-- Dein GitHub-Username
@@ -121,26 +124,32 @@
                         repoItem.appendChild(repoName);
                         reposContainer.appendChild(repoItem);
 
-                        // Klick-Event: Lade README und animiere Titel
+                        // Klick-Event
                         repoItem.addEventListener('click', () => {
-                            // Titel nach oben gleiten lassen
-                            titleContainer.style.marginTop = '0';
+                            // Titel nach oben gleiten
+                            titleContainer.style.margin = '20px 0'; // Oben fixiert
                             mainContent.style.justifyContent = 'flex-start';
 
                             // Lade README.md
                             fetch(`https://api.github.com/repos/${username}/${repo.name}/readme`, {
                                 headers: {
-                                    'Accept': 'application/vnd.github.v3.raw' // Roh-Text statt JSON
+                                    'Accept': 'application/vnd.github.v3.raw'
                                 }
                             })
-                                .then(response => response.text())
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('README nicht gefunden');
+                                    }
+                                    return response.text();
+                                })
                                 .then(text => {
                                     readmeContainer.innerHTML = `<h2>${repo.name}</h2><hr>` + 
-                                        marked.parse(text); // Rendert Markdown zu HTML
+                                        marked.parse(text);
                                     readmeContainer.style.display = 'block';
                                 })
                                 .catch(error => {
-                                    readmeContainer.innerHTML = `<p>README konnte nicht geladen werden.</p>`;
+                                    readmeContainer.innerHTML = 
+                                        `<p class="error-message">Kein README oder Fehler 404</p>`;
                                     readmeContainer.style.display = 'block';
                                 });
                         });
@@ -152,7 +161,7 @@
                 });
         });
     </script>
-    <!-- Markdown-Parser (für README.md) -->
+    <!-- Markdown-Parser -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
