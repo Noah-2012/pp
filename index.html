@@ -22,6 +22,7 @@
             color: white;
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto; /* Scrollbar, falls viele Projekte */
         }
         .main-content {
             flex: 1;
@@ -37,19 +38,25 @@
             color: #24292e;
         }
         .repo-list {
-            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Abstand zwischen Kacheln */
             padding: 0;
         }
         .repo-item {
-            margin: 10px 0;
+            background-color: #2d333b;
+            padding: 15px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+            cursor: default; /* Kein Link-Zeiger */
         }
-        .repo-link {
-            color: #58a6ff;
-            text-decoration: none;
-            font-size: 1.1rem;
+        .repo-item:hover {
+            background-color: #444c56; /* Aufhell-Effekt */
         }
-        .repo-link:hover {
-            text-decoration: underline;
+        .repo-name {
+            font-weight: bold;
+            color: white;
+            margin: 0;
         }
         @media (max-width: 768px) {
             .container {
@@ -63,7 +70,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar mit GitHub-Repos -->
+        <!-- Sidebar mit GitHub-Repos als Kacheln -->
         <div class="sidebar">
             <h2>Meine Projekte</h2>
             <ul class="repo-list" id="repos"></ul>
@@ -75,10 +82,10 @@
         </div>
     </div>
 
-    <!-- JavaScript für GitHub API -->
+    <!-- JavaScript für GitHub API (ohne Links) -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const username = 'noah-2012'; // <-- Hier deinen GitHub-Username eintragen
+            const username = 'noah-2012'; // <-- Dein GitHub-Username
             const reposContainer = document.getElementById('repos');
 
             fetch(`https://api.github.com/users/${username}/repos`)
@@ -88,18 +95,16 @@
                         const repoItem = document.createElement('li');
                         repoItem.className = 'repo-item';
                         
-                        const repoLink = document.createElement('a');
-                        repoLink.href = repo.html_url;
-                        repoLink.className = 'repo-link';
-                        repoLink.textContent = repo.name;
-                        repoLink.target = '_blank';
+                        const repoName = document.createElement('p');
+                        repoName.className = 'repo-name';
+                        repoName.textContent = repo.name;
                         
-                        repoItem.appendChild(repoLink);
+                        repoItem.appendChild(repoName);
                         reposContainer.appendChild(repoItem);
                     });
                 })
                 .catch(error => {
-                    console.error('Fehler beim Laden der Repositories:', error);
+                    console.error('Fehler:', error);
                     reposContainer.innerHTML = '<li>Projekte konnten nicht geladen werden.</li>';
                 });
         });
