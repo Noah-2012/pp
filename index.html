@@ -63,6 +63,10 @@
             transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
             width: 100%;
         }
+        .title-moved-up {
+            top: 80px;
+            transform: translateX(-50%);
+        }
         h1 {
             font-size: 3rem;
             margin: 0;
@@ -133,6 +137,10 @@
                 left: auto;
                 transform: none;
                 margin: 20px 0;
+            }
+            .title-moved-up {
+                top: 20px;
+                transform: none;
             }
         }
     </style>
@@ -217,11 +225,8 @@
                 });
 
             function showRepoDetails(repoName) {
-                // Titel animieren
-                titleContainer.style.position = 'absolute';
-                titleContainer.style.top = '80px';
-                titleContainer.style.left = '50%';
-                titleContainer.style.transform = 'translateX(-50%)';
+                // Titel nach oben bewegen
+                titleContainer.classList.add('title-moved-up');
 
                 // Container anzeigen/verstecken
                 readmeContainer.style.display = 'block';
@@ -248,7 +253,10 @@
             }
 
             async function loadFutureProjects() {
-                resetToHome();
+                // Titel nach oben bewegen
+                titleContainer.classList.add('title-moved-up');
+                
+                // Container anzeigen/verstecken
                 futureProjectsContainer.style.display = 'block';
                 readmeContainer.style.display = 'none';
                 setActiveTab(futureProjectsTab);
@@ -318,10 +326,7 @@
 
             function resetToHome() {
                 // Titel zurücksetzen
-                titleContainer.style.position = 'absolute';
-                titleContainer.style.top = '50%';
-                titleContainer.style.left = '50%';
-                titleContainer.style.transform = 'translate(-50%, -50%)';
+                titleContainer.classList.remove('title-moved-up');
                 
                 // Container verstecken
                 readmeContainer.style.display = 'none';
