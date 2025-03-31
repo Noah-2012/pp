@@ -168,7 +168,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const username = 'noah-2012';
-            const repoName = 'pp.github.io'; // Korrekter Repository-Name
+            const repoName = 'pp.github.io';
             const reposContainer = document.getElementById('repos');
             const titleContainer = document.getElementById('titleContainer');
             const readmeContainer = document.getElementById('readmeContainer');
@@ -187,6 +187,13 @@
                     return response.json();
                 })
                 .then(repos => {
+                    if (!Array.isArray(repos)) {
+                        throw new Error('Invalid response format');
+                    }
+                    
+                    // Clear existing content
+                    reposContainer.innerHTML = '';
+                    
                     repos.forEach(repo => {
                         const repoItem = document.createElement('li');
                         repoItem.className = 'repo-item';
@@ -271,7 +278,7 @@
                     const files = await response.json();
                     futureProjectsContainer.innerHTML = '<h2>Future Projects</h2>';
 
-                    if (!Array.isArray(files) {
+                    if (!Array.isArray(files)) {
                         throw new Error('Ungültige API-Antwort');
                     }
 
