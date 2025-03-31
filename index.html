@@ -126,6 +126,16 @@
             border: 1px solid #e1e4e8;
             border-radius: 6px;
         }
+        .about-me-container {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 80px;
+            display: none;
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
         .project-title {
             font-size: 1.2rem;
             color: #24292e;
@@ -184,6 +194,7 @@
             <div class="nav-bar">
                 <div class="nav-tabs">
                     <div class="nav-tab active" id="homeTab">Home</div>
+                    <div class="nav-tab" id="aboutMeTab">About Me</div>
                     <div class="nav-tab" id="futureProjectsTab">Future Projects</div>
                 </div>
                 <div class="clock" id="clock">00:00:00</div>
@@ -192,6 +203,9 @@
             <div class="title-container" id="titleContainer">
                 <h1>Noadsch12</h1>
             </div>
+            
+            <!-- Neuer Container für About Me -->
+            <div class="about-me-container" id="aboutMeContainer"></div>
             
             <!-- Container für Future Projects -->
             <div class="future-projects-container" id="futureProjectsContainer"></div>
@@ -209,6 +223,8 @@
             const titleContainer = document.getElementById('titleContainer');
             const readmeContainer = document.getElementById('readmeContainer');
             const homeTab = document.getElementById('homeTab');
+            const aboutMeTab = document.getElementById('aboutMeTab');
+            const aboutMeContainer = document.getElementById('aboutMeContainer');
             const futureProjectsTab = document.getElementById('futureProjectsTab');
             const futureProjectsContainer = document.getElementById('futureProjectsContainer');
             const clockElement = document.getElementById('clock');
@@ -226,6 +242,7 @@
 
             // Tab-Switching
             homeTab.addEventListener('click', resetToHome);
+            aboutMeTab.addEventListener('click', loadAboutMe);
             futureProjectsTab.addEventListener('click', loadFutureProjects);
 
             // Lade GitHub Repositories
@@ -266,6 +283,7 @@
             function showRepoDetails(repoName) {
                 titleContainer.classList.add('title-moved-up');
                 readmeContainer.style.display = 'block';
+                aboutMeContainer.style.display = 'none';
                 futureProjectsContainer.style.display = 'none';
 
                 fetch(`https://api.github.com/repos/${username}/${repoName}/readme`, {
@@ -287,10 +305,56 @@
                     });
             }
 
+            async function loadAboutMe() {
+                titleContainer.classList.add('title-moved-up');
+                aboutMeContainer.style.display = 'block';
+                readmeContainer.style.display = 'none';
+                futureProjectsContainer.style.display = 'none';
+                setActiveTab(aboutMeTab);
+
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${username}/${repoName}/contents/scripts/about_me.md`, {
+                        headers: {
+                            'Accept': 'application/vnd.github.v3.raw'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            aboutMeContainer.innerHTML = `
+                                <div class="error-message">
+                                    <h3>About Me Datei nicht gefunden</h3>
+                                    <p>Bitte erstellen Sie eine 'about_me.md' im 'scripts'-Ordner.</p>
+                                    <p>Der Pfad sollte sein: <code>${username}/${repoName}/scripts/about_me.md</code></p>
+                                    <a href="https://github.com/${username}/${repoName}/new/main?filename=scripts/about_me.md" 
+                                       target="_blank"
+                                       style="color: #58a6ff;">
+                                       Hier Datei erstellen
+                                    </a>
+                                </div>`;
+                        } else {
+                            throw new Error(`API Error: ${response.status}`);
+                        }
+                        return;
+                    }
+
+                    const text = await response.text();
+                    aboutMeContainer.innerHTML = marked.parse(text);
+                } catch (error) {
+                    console.error('Fehler beim Laden der About Me Datei:', error);
+                    aboutMeContainer.innerHTML = `
+                        <div class="error-message">
+                            <p>About Me konnte nicht geladen werden.</p>
+                            <p><small>${error.message}</small></p>
+                        </div>`;
+                }
+            }
+
             async function loadFutureProjects() {
                 titleContainer.classList.add('title-moved-up');
                 futureProjectsContainer.style.display = 'block';
                 readmeContainer.style.display = 'none';
+                aboutMeContainer.style.display = 'none';
                 setActiveTab(futureProjectsTab);
 
                 try {
@@ -359,12 +423,14 @@
             function resetToHome() {
                 titleContainer.classList.remove('title-moved-up');
                 readmeContainer.style.display = 'none';
+                aboutMeContainer.style.display = 'none';
                 futureProjectsContainer.style.display = 'none';
                 setActiveTab(homeTab);
             }
 
             function setActiveTab(activeTab) {
                 homeTab.classList.remove('active');
+                aboutMeTab.classList.remove('active');
                 futureProjectsTab.classList.remove('active');
                 
                 if (activeTab) {
