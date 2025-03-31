@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meine Projekte</title>
+</head>
+<body>
+    <h1>Meine GitHub-Projekte</h1>
+    <div id="projects"></div>
+    
+    <script>
+        fetch('https://api.github.com/users/noadsch12/repos')
+            .then(response => response.json())
+            .then(repos => {
+                const container = document.getElementById('projects');
+                repos.forEach(repo => {
+                    const link = document.createElement('a');
+                    link.href = repo.html_url;
+                    link.textContent = repo.name;
+                    link.style.display = 'block';
+                    container.appendChild(link);
+                });
+            });
+    </script>
+</body>
+</html>
