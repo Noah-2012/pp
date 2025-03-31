@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noadsch12 - GitHub Projekte</title>
+    <title>Noadsch12 - Projekte</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -34,6 +34,8 @@
             position: relative;
         }
         .nav-bar {
+            display: flex;
+            gap: 20px;
             background-color: white;
             padding: 10px 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -41,14 +43,16 @@
             top: 0;
             z-index: 100;
         }
-        .home-button {
+        .nav-tab {
             color: #24292e;
             text-decoration: none;
             font-weight: bold;
             cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
         }
-        .home-button:hover {
-            text-decoration: underline;
+        .nav-tab:hover, .nav-tab.active {
+            background-color: #f0f0f0;
         }
         .title-container {
             text-align: center;
@@ -85,7 +89,7 @@
             color: white;
             margin: 0;
         }
-        .readme-container {
+        .readme-container, .future-projects-container {
             background: white;
             padding: 20px;
             border-radius: 6px;
@@ -98,6 +102,21 @@
         .error-message {
             color: #d73a49;
             font-weight: bold;
+        }
+        .project-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+        }
+        .project-title {
+            font-size: 1.2rem;
+            color: #24292e;
+            margin: 0 0 10px 0;
+        }
+        .project-content {
+            color: #333;
+            white-space: pre-line;
         }
         @media (max-width: 768px) {
             .container {
@@ -120,7 +139,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- Feste Sidebar -->
+        <!-- Sidebar mit GitHub-Repos -->
         <div class="sidebar">
             <h2>Meine Projekte</h2>
             <ul class="repo-list" id="repos"></ul>
@@ -128,14 +147,20 @@
 
         <!-- Hauptinhalt -->
         <div class="main-content">
-            <!-- Neue Navigationsleiste -->
+            <!-- Navigationsleiste -->
             <div class="nav-bar">
-                <div class="home-button" id="homeButton">Home</div>
+                <div class="nav-tab active" id="homeTab">Home</div>
+                <div class="nav-tab" id="futureProjectsTab">Future Projects</div>
             </div>
 
             <div class="title-container" id="titleContainer">
                 <h1>Noadsch12</h1>
             </div>
+            
+            <!-- Container für Future Projects -->
+            <div class="future-projects-container" id="futureProjectsContainer"></div>
+            
+            <!-- Container für READMEs -->
             <div class="readme-container" id="readmeContainer"></div>
         </div>
     </div>
@@ -146,12 +171,15 @@
             const reposContainer = document.getElementById('repos');
             const titleContainer = document.getElementById('titleContainer');
             const readmeContainer = document.getElementById('readmeContainer');
-            const homeButton = document.getElementById('homeButton');
+            const homeTab = document.getElementById('homeTab');
+            const futureProjectsTab = document.getElementById('futureProjectsTab');
+            const futureProjectsContainer = document.getElementById('futureProjectsContainer');
 
-            // Zurück zur Startansicht
-            homeButton.addEventListener('click', resetToHome);
+            // Tab-Switching
+            homeTab.addEventListener('click', resetToHome);
+            futureProjectsTab.addEventListener('click', loadFutureProjects);
 
-            // Lade Repositories
+            // Lade GitHub Repositories
             fetch(`https://api.github.com/users/${username}/repos`)
                 .then(response => response.json())
                 .then(repos => {
@@ -166,9 +194,9 @@
                         repoItem.appendChild(repoName);
                         reposContainer.appendChild(repoItem);
 
-                        // Klick-Event
                         repoItem.addEventListener('click', () => {
                             showRepoDetails(repo.name);
+                            setActiveTab(null);
                         });
                     });
                 })
@@ -180,9 +208,13 @@
             function showRepoDetails(repoName) {
                 // Titel animieren
                 titleContainer.style.position = 'absolute';
-                titleContainer.style.top = '80px'; // Unter der Nav-Leiste
+                titleContainer.style.top = '80px';
                 titleContainer.style.left = '50%';
                 titleContainer.style.transform = 'translateX(-50%)';
+
+                // Container anzeigen/verstecken
+                readmeContainer.style.display = 'block';
+                futureProjectsContainer.style.display = 'none';
 
                 // Lade README.md
                 fetch(`https://api.github.com/repos/${username}/${repoName}/readme`, {
@@ -197,12 +229,47 @@
                     .then(text => {
                         readmeContainer.innerHTML = `<h2>${repoName}</h2><hr>` + 
                             marked.parse(text);
-                        readmeContainer.style.display = 'block';
                     })
                     .catch(() => {
                         readmeContainer.innerHTML = 
                             `<p class="error-message">Kein README oder Fehler 404</p>`;
-                        readmeContainer.style.display = 'block';
+                    });
+            }
+
+            function loadFutureProjects() {
+                resetToHome();
+                futureProjectsContainer.style.display = 'block';
+                readmeContainer.style.display = 'none';
+                setActiveTab(futureProjectsTab);
+
+                // Lade Future Projects aus dem projects-Ordner
+                fetch(`https://api.github.com/repos/${username}/${username}.github.io/contents/projects`)
+                    .then(response => response.json())
+                    .then(files => {
+                        futureProjectsContainer.innerHTML = '<h2>Future Projects</h2>';
+                        
+                        files.forEach(file => {
+                            if (file.name.endsWith('.txt')) {
+                                fetch(file.download_url)
+                                    .then(response => response.text())
+                                    .then(content => {
+                                        const projectItem = document.createElement('div');
+                                        projectItem.className = 'project-item';
+                                        
+                                        const title = file.name.replace('.txt', '');
+                                        projectItem.innerHTML = `
+                                            <h3 class="project-title">${title}</h3>
+                                            <p class="project-content">${content}</p>
+                                        `;
+                                        
+                                        futureProjectsContainer.appendChild(projectItem);
+                                    });
+                            }
+                        });
+                    })
+                    .catch(() => {
+                        futureProjectsContainer.innerHTML = 
+                            '<p class="error-message">Future Projects konnten nicht geladen werden.</p>';
                     });
             }
 
@@ -213,9 +280,22 @@
                 titleContainer.style.left = '50%';
                 titleContainer.style.transform = 'translate(-50%, -50%)';
                 
-                // README ausblenden
+                // Container verstecken
                 readmeContainer.style.display = 'none';
-                readmeContainer.innerHTML = '';
+                futureProjectsContainer.style.display = 'none';
+                
+                setActiveTab(homeTab);
+            }
+
+            function setActiveTab(activeTab) {
+                // Alle Tabs inaktiv setzen
+                homeTab.classList.remove('active');
+                futureProjectsTab.classList.remove('active');
+                
+                // Aktiven Tab markieren
+                if (activeTab) {
+                    activeTab.classList.add('active');
+                }
             }
         });
     </script>
