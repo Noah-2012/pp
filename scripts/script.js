@@ -220,6 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (activeTab) {
             activeTab.classList.add('active');
         }
+    }
     function updateDownloadButton(repoName) {
         const repoActions = document.getElementById('repoActions');
         if (!repoActions) return;
@@ -236,6 +237,30 @@ document.addEventListener('DOMContentLoaded', function() {
                <i class="fas fa-external-link-alt"></i> Auf GitHub ansehen
             </a>
         `;
+    }
+    function addDownloadButton(repoName) {
+        // Entferne vorhandenen Button falls vorhanden
+        const existingBtn = document.getElementById('repoDownloadBtn');
+        if (existingBtn) existingBtn.remove();
+    
+        // Erstelle Download-Button
+        const downloadBtn = document.createElement('a');
+        downloadBtn.id = 'repoDownloadBtn';
+        downloadBtn.className = 'download-btn';
+        downloadBtn.href = `https://github.com/noah-2012/${repoName}/archive/refs/heads/main.zip`;
+        downloadBtn.download = true;
+        downloadBtn.textContent = `Download ${repoName} (ZIP)`;
+    
+        // Container für den Button erstellen
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'repo-actions';
+        btnContainer.appendChild(downloadBtn);
+    
+        // Füge Button unter dem README ein
+        const readmeContainer = document.getElementById('readmeContainer');
+        if (readmeContainer) {
+            readmeContainer.appendChild(btnContainer);
         }
     }
+    
 });
