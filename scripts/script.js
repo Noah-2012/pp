@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const futureProjectsContainer = document.getElementById('futureProjectsContainer');
     const clockElement = document.getElementById('clock');
 
-    updateDownloadButton(repoName);
     
     // Uhrfunktion
     function updateClock() {
@@ -87,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 readmeContainer.innerHTML = 
                     `<p class="error-message">Kein README oder Fehler 404</p>`;
             });
+        updateDownloadButton(repoName);
     }
 
     async function loadAboutMe() {
