@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const username = 'noah-2012';
-    const repoName = 'pp.github.io';
+    const repoName = 'pp';
     const reposContainer = document.getElementById('repos');
     const titleContainer = document.getElementById('titleContainer');
     const readmeContainer = document.getElementById('readmeContainer');
@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const futureProjectsContainer = document.getElementById('futureProjectsContainer');
     const clockElement = document.getElementById('clock');
 
+    updateDownloadButton(repoName);
+    
     // Uhrfunktion
     function updateClock() {
         const now = new Date();
