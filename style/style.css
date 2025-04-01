@@ -142,7 +142,7 @@ h1 {
     background: #2ea44f;
     color: white;
     padding: 10px 20px;
-    border-radius: 6px;
+    border-radius: 10px;
     text-decoration: none;
     transition: all 0.2s;
     display: inline-flex;
@@ -153,7 +153,7 @@ h1 {
     background: #f6f8fa;
     color: #24292e;
     padding: 10px 20px;
-    border-radius: 6px;
+    border-radius: 10px;
     text-decoration: none;
     border: 1px solid #d1d5da;
     transition: all 0.2s;
