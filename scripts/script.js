@@ -211,6 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
         aboutMeContainer.style.display = 'none';
         futureProjectsContainer.style.display = 'none';
         setActiveTab(homeTab);
+        hideDownloadButton();
     }
 
     function setActiveTab(activeTab) {
