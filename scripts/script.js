@@ -220,5 +220,22 @@ document.addEventListener('DOMContentLoaded', function() {
         if (activeTab) {
             activeTab.classList.add('active');
         }
+    function updateDownloadButton(repoName) {
+        const repoActions = document.getElementById('repoActions');
+        if (!repoActions) return;
+    
+        repoActions.innerHTML = `
+            <a href="https://github.com/noah-2012/${repoName}/archive/refs/heads/main.zip" 
+               class="download-btn" 
+               download>
+               <i class="fas fa-download"></i> ${repoName} herunterladen (ZIP)
+            </a>
+            <a href="https://github.com/noah-2012/${repoName}" 
+               class="github-link" 
+               target="_blank">
+               <i class="fas fa-external-link-alt"></i> Auf GitHub ansehen
+            </a>
+        `;
+        }
     }
 });
