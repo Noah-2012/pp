@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 readmeContainer.innerHTML = 
                     `<p class="error-message">Kein README oder Fehler 404</p>`;
             });
+        addDownloadButton(repoName);
         updateDownloadButton(repoName);
     }
 
