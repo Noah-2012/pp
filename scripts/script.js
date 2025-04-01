@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 readmeContainer.innerHTML = 
                     `<p class="error-message">Kein README oder Fehler 404</p>`;
             });
-        addDownloadButton(repoName);
+        showDownloadButton(repoName);
         updateDownloadButton(repoName);
     }
 
@@ -239,29 +239,29 @@ document.addEventListener('DOMContentLoaded', function() {
             </a>
         `;
     }
-    function addDownloadButton(repoName) {
-        // Entferne vorhandenen Button falls vorhanden
-        const existingBtn = document.getElementById('repoDownloadBtn');
-        if (existingBtn) existingBtn.remove();
+    function showDownloadButton(repoName) {
+        const repoActions = document.getElementById('repoActions');
+        if (!repoActions) return;
     
-        // Erstelle Download-Button
-        const downloadBtn = document.createElement('a');
-        downloadBtn.id = 'repoDownloadBtn';
-        downloadBtn.className = 'download-btn';
-        downloadBtn.href = `https://github.com/noah-2012/${repoName}/archive/refs/heads/main.zip`;
-        downloadBtn.download = true;
-        downloadBtn.textContent = `Download ${repoName} (ZIP)`;
-    
-        // Container für den Button erstellen
-        const btnContainer = document.createElement('div');
-        btnContainer.className = 'repo-actions';
-        btnContainer.appendChild(downloadBtn);
-    
-        // Füge Button unter dem README ein
-        const readmeContainer = document.getElementById('readmeContainer');
-        if (readmeContainer) {
-            readmeContainer.appendChild(btnContainer);
+        repoActions.innerHTML = `
+            <a href="https://github.com/noah-2012/${repoName}/archive/refs/heads/main.zip" 
+               class="download-btn" 
+               download>
+               <i class="fas fa-download"></i> ${repoName} herunterladen
+            </a>
+        `;
+        setTimeout(() => {
+            repoActions.classList.add('visible');
+        }, 10);
+    }
+
+    function hideDownloadButton() {
+        const repoActions = document.getElementById('repoActions');
+        if (repoActions) {
+            repoActions.classList.remove('visible');
+            setTimeout(() => {
+                repoActions.innerHTML = '';
+            }, 300); // Warte bis die Animation fertig ist
         }
     }
-    
 });
