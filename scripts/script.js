@@ -10,8 +10,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const futureProjectsTab = document.getElementById('futureProjectsTab');
     const futureProjectsContainer = document.getElementById('futureProjectsContainer');
     const clockElement = document.getElementById('clock');
+    const repoActions = document.getElementById('repoActions');
 
-    
+    // Überprüfen, ob alle benötigten Elemente vorhanden sind
+    if (!reposContainer || !titleContainer || !readmeContainer || !homeTab || 
+        !aboutMeTab || !aboutMeContainer || !futureProjectsTab || 
+        !futureProjectsContainer || !clockElement || !repoActions) {
+        console.error('Ein oder mehrere erforderliche DOM-Elemente fehlen');
+        return;
+    }
+
     // Uhrfunktion
     function updateClock() {
         const now = new Date();
@@ -20,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const seconds = String(now.getSeconds()).padStart(2, '0');
         clockElement.textContent = `${hours}:${minutes}:${seconds}`;
     }
+    
     setInterval(updateClock, 1000);
     updateClock();
 
@@ -29,41 +38,47 @@ document.addEventListener('DOMContentLoaded', function() {
     futureProjectsTab.addEventListener('click', loadFutureProjects);
 
     // Lade GitHub Repositories
-    fetch(`https://api.github.com/users/${username}/repos`)
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(repos => {
-            if (!Array.isArray(repos)) {
-                throw new Error('Invalid response format');
-            }
-            
-            reposContainer.innerHTML = '';
-            
-            repos.forEach(repo => {
-                const repoItem = document.createElement('li');
-                repoItem.className = 'repo-item';
+    function fetchRepositories() {
+        fetch(`https://api.github.com/users/${username}/repos`)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(repos => {
+                if (!Array.isArray(repos)) {
+                    throw new Error('Invalid response format');
+                }
                 
-                const repoNameElement = document.createElement('p');
-                repoNameElement.className = 'repo-name';
-                repoNameElement.textContent = repo.name;
+                reposContainer.innerHTML = '';
                 
-                repoItem.appendChild(repoNameElement);
-                reposContainer.appendChild(repoItem);
+                repos.forEach(repo => {
+                    if (!repo.name) return; // Überspringen, wenn kein Name vorhanden
+                    
+                    const repoItem = document.createElement('li');
+                    repoItem.className = 'repo-item';
+                    
+                    const repoNameElement = document.createElement('p');
+                    repoNameElement.className = 'repo-name';
+                    repoNameElement.textContent = repo.name;
+                    
+                    repoItem.appendChild(repoNameElement);
+                    reposContainer.appendChild(repoItem);
 
-                repoItem.addEventListener('click', () => {
-                    showRepoDetails(repo.name);
-                    setActiveTab(null);
+                    repoItem.addEventListener('click', () => {
+                        showRepoDetails(repo.name);
+                        setActiveTab(null);
+                    });
                 });
+            })
+            .catch(error => {
+                console.error('Fehler beim Laden der Repositories:', error);
+                reposContainer.innerHTML = '<li>Projekte konnten nicht geladen werden. Bitte versuche es später erneut.</li>';
             });
-        })
-        .catch(error => {
-            console.error('Fehler beim Laden der Repositories:', error);
-            reposContainer.innerHTML = '<li>Projekte konnten nicht geladen werden. Bitte versuche es später erneut.</li>';
-        });
+    }
 
     function showRepoDetails(repoName) {
+        if (!repoName) return;
+        
         titleContainer.classList.add('title-moved-up');
         readmeContainer.style.display = 'block';
         aboutMeContainer.style.display = 'none';
@@ -80,13 +95,13 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(text => {
                 readmeContainer.innerHTML = `<h2>${repoName}</h2><hr>` + 
-                    marked.parse(text);
+                    (window.marked ? marked.parse(text) : text);
             })
             .catch(() => {
                 readmeContainer.innerHTML = 
                     `<p class="error-message">Kein README oder Fehler 404</p>`;
             });
-        showDownloadButton(repoName);
+        
         updateDownloadButton(repoName);
     }
 
@@ -124,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const text = await response.text();
-            aboutMeContainer.innerHTML = marked.parse(text);
+            aboutMeContainer.innerHTML = window.marked ? marked.parse(text) : text;
         } catch (error) {
             console.error('Fehler beim Laden der About Me Datei:', error);
             aboutMeContainer.innerHTML = `
@@ -171,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Ungültige API-Antwort');
             }
 
-            const txtFiles = files.filter(file => file.name.toLowerCase().endsWith('.txt'));
+            const txtFiles = files.filter(file => file.name && file.name.toLowerCase().endsWith('.txt'));
             
             if (txtFiles.length === 0) {
                 futureProjectsContainer.innerHTML += '<p>Keine .txt-Dateien im projects-Ordner gefunden</p>';
@@ -180,6 +195,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             for (const file of txtFiles) {
                 try {
+                    if (!file.download_url) continue;
+                    
                     const contentResponse = await fetch(file.download_url);
                     if (!contentResponse.ok) continue;
                     
@@ -188,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     projectItem.className = 'project-item';
                     projectItem.innerHTML = `
                         <h3 class="project-title">${file.name.replace('.txt', '')}</h3>
-                        <pre class="project-content">${content}</pre>
+                        <pre class="project-content">${escapeHtml(content)}</pre>
                     `;
                     futureProjectsContainer.appendChild(projectItem);
                 } catch (error) {
@@ -215,54 +232,53 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setActiveTab(activeTab) {
-        homeTab.classList.remove('active');
-        aboutMeTab.classList.remove('active');
-        futureProjectsTab.classList.remove('active');
+        [homeTab, aboutMeTab, futureProjectsTab].forEach(tab => {
+            tab.classList.remove('active');
+        });
         
         if (activeTab) {
             activeTab.classList.add('active');
         }
     }
+
     function updateDownloadButton(repoName) {
-        const repoActions = document.getElementById('repoActions');
-        if (!repoActions) return;
-    
+        if (!repoName) return;
+        
         repoActions.innerHTML = `
-            <a href="https://github.com/noah-2012/${repoName}/archive/refs/heads/main.zip" 
+            <a href="https://github.com/${username}/${repoName}/archive/refs/heads/main.zip" 
                class="download-btn" 
                download>
                <i class="fas fa-download"></i> ${repoName} herunterladen (ZIP)
             </a>
-            <a href="https://github.com/noah-2012/${repoName}" 
+            <a href="https://github.com/${username}/${repoName}" 
                class="github-link" 
-               target="_blank">
+               target="_blank" 
+               rel="noopener noreferrer">
                <i class="fas fa-external-link-alt"></i> Auf GitHub ansehen
             </a>
         `;
-    }
-    function showDownloadButton(repoName) {
-        const repoActions = document.getElementById('repoActions');
-        if (!repoActions) return;
-    
-        repoActions.innerHTML = `
-            <a href="https://github.com/noah-2012/${repoName}/archive/refs/heads/main.zip" 
-               class="download-btn" 
-               download>
-               <i class="fas fa-download"></i> ${repoName} herunterladen
-            </a>
-        `;
-        setTimeout(() => {
-            repoActions.classList.add('visible');
-        }, 10);
+        
+        repoActions.classList.add('visible');
     }
 
     function hideDownloadButton() {
-        const repoActions = document.getElementById('repoActions');
-        if (repoActions) {
-            repoActions.classList.remove('visible');
-            setTimeout(() => {
-                repoActions.innerHTML = '';
-            }, 300); // Warte bis die Animation fertig ist
-        }
+        repoActions.classList.remove('visible');
+        setTimeout(() => {
+            repoActions.innerHTML = '';
+        }, 300);
     }
+
+    // Hilfsfunktion zum Escapen von HTML
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Initialisierung
+    fetchRepositories();
 });
