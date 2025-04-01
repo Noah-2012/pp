@@ -74,6 +74,7 @@ body {
     transform: translateX(-50%);
 }
 h1 {
+    font-family: 'Courier New', monospace;
     font-size: 3rem;
     margin: 0;
     color: #24292e;
@@ -167,7 +168,7 @@ h1 {
 }
 .github-link:hover {
     border-color: #0366d6;
-    transform: translateY(+20px);
+    transform: translateY(+2px);
 }
 .repo-actions {
     opacity: 0;
