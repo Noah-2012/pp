@@ -26,23 +26,23 @@ body {
 .container {
     display: flex;
     min-height: 100vh;
-    flex-direction: column;
 }
 
 .sidebar {
-    width: 100%;
+    width: 300px;
     background-color: var(--primary-color);
     color: var(--text-light);
-    padding: 1.25rem;
+    padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
-    z-index: 10;
+    height: 100vh;
+    overflow-y: auto;
 }
 
 .main-content {
     flex: 1;
-    padding: 1.25rem;
+    padding: 20px;
     position: relative;
 }
 
@@ -51,7 +51,7 @@ body {
     justify-content: space-between;
     align-items: center;
     background-color: var(--card-bg);
-    padding: 0.625rem 1.25rem;
+    padding: 10px 20px;
     box-shadow: var(--shadow);
     position: sticky;
     top: 0;
