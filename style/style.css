@@ -163,7 +163,7 @@ h1 {
 }
 .download-btn:hover {
     background: #22863a;
-    transform: translateY(+2px);
+    transform: translateY(-2px);
 }
 .github-link:hover {
     border-color: #0366d6;
