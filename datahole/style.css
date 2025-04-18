@@ -1,16 +1,35 @@
+:root {
+    --bg: #f9f9f9;
+    --text: #111;
+    --subtext: #666;
+    --border: #ddd;
+    --highlight: #eee;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: sans-serif;
-    background: #f3f4f6;
+    font-family: monospace;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
     padding: 2rem;
-    color: #1f2937;
+}
+
+main {
+    max-width: 800px;
+    margin: auto;
 }
 
 h1 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
 }
 
-#login {
+.subtitle {
+    color: var(--subtext);
     margin-bottom: 2rem;
 }
 
@@ -18,27 +37,44 @@ input[type="password"] {
     padding: 0.5rem;
     font-size: 1rem;
     width: 300px;
+    border: 1px solid var(--border);
+    background: white;
     margin-right: 0.5rem;
 }
 
 button {
     padding: 0.5rem 1rem;
     font-size: 1rem;
-    background-color: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 4px;
+    background: white;
+    border: 1px solid var(--border);
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #1d4ed8;
+    background: var(--highlight);
 }
 
 .project {
-    background: white;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 0;
+}
+
+.project h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.project small {
+    display: block;
+    color: var(--subtext);
+    margin-bottom: 0.5rem;
+}
+
+.project p {
+    margin: 0;
+    color: #333;
+}
+
+.hidden {
+    display: none;
 }
