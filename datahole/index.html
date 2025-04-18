@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Datahole</title>
+    <title>datahole</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>Willkommen bei Datahole</h1>
+    <main id="app">
+        <section id="login-view">
+            <h1>datahole</h1>
+            <p class="subtitle">minimalistisches code repository</p>
+            <input type="password" id="token" placeholder="GitHub Token eingeben" />
+            <button onclick="loadProjects()">Anmelden</button>
+        </section>
 
-    <div id="login">
-        <input type="password" id="token" placeholder="GitHub Token eingeben" />
-        <button onclick="loadProjects()">Anmelden</button>
-    </div>
-
-    <div id="project-list"></div>
+        <section id="project-view" class="hidden">
+            <h1>Projekte</h1>
+            <div id="project-list"></div>
+        </section>
+    </main>
 
     <script src="script.js"></script>
 </body>
