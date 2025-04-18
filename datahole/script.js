@@ -9,17 +9,14 @@ async function loadProjects() {
     const repoName = "datahole-data";
     const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/repos`;
 
-    const projectList = document.getElementById("project-list");
     const loginView = document.getElementById("login-view");
     const projectView = document.getElementById("project-view");
-
-    projectList.innerHTML = "<p>Lade Projekte...</p>";
+    const projectList = document.getElementById("project-list");
 
     try {
         const response = await fetch(apiUrl, { headers });
         const folders = await response.json();
 
-        projectList.innerHTML = "";
         loginView.classList.add("hidden");
         projectView.classList.remove("hidden");
 
@@ -42,15 +39,15 @@ async function loadProjects() {
                 const el = document.createElement("div");
                 el.className = "project";
                 el.innerHTML = `
-                    <h2>${name}</h2>
-                    <small>Version: ${version} – Autor: ${author}</small>
+                    <h3>${name}</h3>
+                    <p>Version ${version} – ${author}</p>
                     <p>${desc}</p>
                 `;
                 projectList.appendChild(el);
             }
         }
     } catch (err) {
-        projectList.innerHTML = "<p>❌ Fehler beim Laden der Projekte.</p>";
+        alert("❌ Fehler beim Laden der Projekte. Ist dein Token korrekt?");
         console.error(err);
     }
 }
