@@ -15,7 +15,7 @@ async function loadProjects() {
 
   try {
     const response = await fetch(apiUrl, { headers });
-    if (!response.ok) throw new Error("Fehler beim Laden der Projekte.");
+    if (!response.ok) throw new Error("Token ungültig oder Repo nicht erreichbar.");
     const folders = await response.json();
 
     loginView.classList.add("hidden");
@@ -25,13 +25,11 @@ async function loadProjects() {
       if (folder.type === "dir") {
         const metadataUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/repos/${folder.name}/metadata.xml`;
         const res = await fetch(metadataUrl, { headers });
-
         if (!res.ok) continue;
 
         const file = await res.json();
         const decoded = atob(file.content);
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(decoded, "text/xml");
+        const xml = new DOMParser().parseFromString(decoded, "text/xml");
 
         const name = xml.querySelector("name")?.textContent || folder.name;
         const author = xml.querySelector("author")?.textContent || "Unbekannt";
@@ -41,15 +39,15 @@ async function loadProjects() {
         const el = document.createElement("div");
         el.className = "project";
         el.innerHTML = `
-          <h3>${name}</h3>
-          <p>Version ${version} – ${author}</p>
+          <strong>${name}</strong><br />
+          <small>${version} – ${author}</small><br />
           <p>${desc}</p>
         `;
         projectList.appendChild(el);
       }
     }
   } catch (err) {
-    alert("❌ Fehler beim Laden der Projekte. Ist dein Token korrekt?");
+    alert("❌ Fehler beim Laden der Projekte.");
     console.error(err);
   }
 }
