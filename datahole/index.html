@@ -5,23 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>datahole</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body, html {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #login-view {
+      max-width: 400px;
+      width: 100%;
+      padding: 2rem;
+      border: 1px solid #ccc;
+      border-radius: 0.25rem;
+      text-align: center;
+    }
+    #login-view input, #login-view button {
+      width: 100%;
+      margin-top: 1rem;
+    }
+    #project-view {
+      padding: 2rem;
+      width: 100%;
+      max-width: 800px;
+      margin: auto;
+    }
+    .project {
+      padding: 1rem 0;
+      border-top: 1px solid #ddd;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <main>
-    <section id="login-view">
-      <h1>datahole</h1>
-      <p><code>zugang zu privaten repos</code></p>
-      <form onsubmit="loadProjects(); return false;">
-        <input type="password" id="token" placeholder="GitHub Token eingeben" required />
-        <button type="submit">Anmelden</button>
-      </form>
-    </section>
+  <section id="login-view">
+    <h1>datahole</h1>
+    <p><code>Privater Zugriff</code></p>
+    <input type="password" id="token" placeholder="GitHub Token" />
+    <button onclick="loadProjects()">Anmelden</button>
+  </section>
 
-    <section id="project-view" class="hidden">
-      <h2>Projekte</h2>
-      <div id="project-list"></div>
-    </section>
-  </main>
+  <section id="project-view" class="hidden">
+    <h2>Projekte</h2>
+    <div id="project-list"></div>
+  </section>
+
   <script src="script.js"></script>
 </body>
 </html>
+
