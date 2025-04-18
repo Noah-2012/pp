@@ -1,26 +1,27 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datahole</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>datahole</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div id="login-view">
-        <div class="login-box">
-            <h1>datahole</h1>
-            <p><code>zugang zu privaten repos</code></p>
-            <input type="password" id="token" placeholder="GitHub Token eingeben" />
-            <button onclick="loadProjects()">Anmelden</button>
-        </div>
-    </div>
+  <main>
+    <section id="login-view">
+      <h1>datahole</h1>
+      <p><code>zugang zu privaten repos</code></p>
+      <form onsubmit="loadProjects(); return false;">
+        <input type="password" id="token" placeholder="GitHub Token eingeben" required />
+        <button type="submit">Anmelden</button>
+      </form>
+    </section>
 
-    <div id="project-view" class="hidden">
-        <h2>Projekte</h2>
-        <div id="project-list"></div>
-    </div>
-
-    <script src="script.js"></script>
+    <section id="project-view" class="hidden">
+      <h2>Projekte</h2>
+      <div id="project-list"></div>
+    </section>
+  </main>
+  <script src="script.js"></script>
 </body>
 </html>
