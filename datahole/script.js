@@ -1,56 +1,51 @@
-console.log("Starte fetch auf: 'repos/' von", window.location.href);
+async function loadProjects() {
+    const token = document.getElementById("token").value;
+    const headers = {
+        Authorization: `token ${token}`,
+        Accept: "application/vnd.github.v3+json"
+    };
 
-document.addEventListener("DOMContentLoaded", () => {
+    const repoOwner = "noah-2012";
+    const repoName = "datahole-data";
+    const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/repos`;
+
     const container = document.getElementById("project-list");
+    container.innerHTML = "<p>Lade Projekte...</p>";
 
-    fetch('repos/')
-        .then(response => response.text())
-        .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const links = Array.from(doc.querySelectorAll('a'))
-                .map(a => a.getAttribute('href'))
-                .filter(href =>
-                    href &&
-                    !href.startsWith('..') &&
-                    !href.endsWith('.html') &&
-                    !href.endsWith('.css') &&
-                    !href.endsWith('.js') &&
-                    href !== '/' &&
-                    !href.includes('//') &&
-                    !href.startsWith('repos/') &&
-                    href.endsWith('/') // <-- nur Ordner
-                );
+    try {
+        const response = await fetch(apiUrl, { headers });
+        const folders = await response.json();
 
-            links.forEach(folder => {
-                const metadataPath = `repos/${folder}metadata.xml`;
+        container.innerHTML = "";
 
-                fetch(metadataPath)
-                    .then(res => res.text())
-                    .then(xmlText => {
-                        const xml = new DOMParser().parseFromString(xmlText, 'text/xml');
-                        const name = xml.querySelector('name')?.textContent || 'Unbenannt';
-                        const author = xml.querySelector('author')?.textContent || 'Unbekannt';
-                        const desc = xml.querySelector('description')?.textContent || '';
-                        const version = xml.querySelector('version')?.textContent || '';
+        for (const folder of folders) {
+            if (folder.type === "dir") {
+                const metadataUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/repos/${folder.name}/metadata.xml`;
+                const res = await fetch(metadataUrl, { headers });
 
-                        const projectEl = document.createElement('div');
-                        projectEl.className = 'project';
-                        projectEl.innerHTML = `
-                            <a href="repos/${folder}">
-                                <h2>${name}</h2>
-                                <p>${desc}</p>
-                                <span>Version ${version} – von ${author}</span>
-                            </a>
-                        `;
-                        container.appendChild(projectEl);
-                    })
-                    .catch(() => {
-                        console.log(`Ordner ${folder} enthält keine gültige metadata.xml`);
-                    });
-            });
-        })
-        .catch(err => {
-            console.error("Fehler beim Laden von /repos/:", err);
-        });
-});
+                if (!res.ok) continue;
+
+                const file = await res.json();
+                const decoded = atob(file.content);
+                const xml = new DOMParser().parseFromString(decoded, "text/xml");
+
+                const name = xml.querySelector("name")?.textContent || folder.name;
+                const author = xml.querySelector("author")?.textContent || "Unbekannt";
+                const desc = xml.querySelector("description")?.textContent || "";
+                const version = xml.querySelector("version")?.textContent || "";
+
+                const el = document.createElement("div");
+                el.className = "project";
+                el.innerHTML = `
+                    <h2>${name}</h2>
+                    <p>${desc}</p>
+                    <small>Version: ${version} – Autor: ${author}</small>
+                `;
+                container.appendChild(el);
+            }
+        }
+    } catch (err) {
+        container.innerHTML = "<p>❌ Fehler beim Laden der Projekte.</p>";
+        console.error(err);
+    }
+}
