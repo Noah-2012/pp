@@ -8,10 +8,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const doc = parser.parseFromString(html, 'text/html');
             const links = Array.from(doc.querySelectorAll('a'))
                 .map(a => a.getAttribute('href'))
-                .filter(href => href && !href.startsWith('../')); // Nur Unterordner
+                .filter(href =>
+                    href &&
+                    !href.startsWith('..') &&
+                    !href.endsWith('.html') &&
+                    !href.endsWith('.css') &&
+                    !href.endsWith('.js') &&
+                    href !== '/' &&
+                    !href.includes('//') &&
+                    !href.startsWith('repos/') &&
+                    href.endsWith('/') // <-- nur Ordner
+                );
 
             links.forEach(folder => {
-                const metadataPath = `repos/${folder}/metadata.xml`;
+                const metadataPath = `repos/${folder}metadata.xml`;
 
                 fetch(metadataPath)
                     .then(res => res.text())
@@ -33,11 +43,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         `;
                         container.appendChild(projectEl);
                     })
-                    .catch(err => console.warn(`Keine metadata.xml in ${folder}`, err));
+                    .catch(() => {
+                        console.log(`Ordner ${folder} enthält keine gültige metadata.xml`);
+                    });
             });
         })
         .catch(err => {
-            console.error("Konnte repos/ nicht laden", err);
+            console.error("Fehler beim Laden von /repos/:", err);
         });
 });
-
