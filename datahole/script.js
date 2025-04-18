@@ -9,14 +9,19 @@ async function loadProjects() {
     const repoName = "datahole-data";
     const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/repos`;
 
-    const container = document.getElementById("project-list");
-    container.innerHTML = "<p>Lade Projekte...</p>";
+    const projectList = document.getElementById("project-list");
+    const loginView = document.getElementById("login-view");
+    const projectView = document.getElementById("project-view");
+
+    projectList.innerHTML = "<p>Lade Projekte...</p>";
 
     try {
         const response = await fetch(apiUrl, { headers });
         const folders = await response.json();
 
-        container.innerHTML = "";
+        projectList.innerHTML = "";
+        loginView.classList.add("hidden");
+        projectView.classList.remove("hidden");
 
         for (const folder of folders) {
             if (folder.type === "dir") {
@@ -38,14 +43,14 @@ async function loadProjects() {
                 el.className = "project";
                 el.innerHTML = `
                     <h2>${name}</h2>
-                    <p>${desc}</p>
                     <small>Version: ${version} – Autor: ${author}</small>
+                    <p>${desc}</p>
                 `;
-                container.appendChild(el);
+                projectList.appendChild(el);
             }
         }
     } catch (err) {
-        container.innerHTML = "<p>❌ Fehler beim Laden der Projekte.</p>";
+        projectList.innerHTML = "<p>❌ Fehler beim Laden der Projekte.</p>";
         console.error(err);
     }
 }
