@@ -1,3 +1,5 @@
+console.log("Starte fetch auf: 'repos/' von", window.location.href);
+
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("project-list");
 
