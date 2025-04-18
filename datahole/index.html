@@ -7,19 +7,19 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <main id="app">
-        <section id="login-view">
+    <div id="login-view">
+        <div class="login-box">
             <h1>datahole</h1>
-            <p class="subtitle">minimalistisches code repository</p>
+            <p><code>zugang zu privaten repos</code></p>
             <input type="password" id="token" placeholder="GitHub Token eingeben" />
             <button onclick="loadProjects()">Anmelden</button>
-        </section>
+        </div>
+    </div>
 
-        <section id="project-view" class="hidden">
-            <h1>Projekte</h1>
-            <div id="project-list"></div>
-        </section>
-    </main>
+    <div id="project-view" class="hidden">
+        <h2>Projekte</h2>
+        <div id="project-list"></div>
+    </div>
 
     <script src="script.js"></script>
 </body>
