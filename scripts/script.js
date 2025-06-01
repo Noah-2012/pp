@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 reposContainer.innerHTML = '';
                 
                 repos.forEach(repo => {
-                    if (!repo.name) return;
+                    if (!repo.name) return; // Überspringen, wenn kein Name vorhanden
                     
                     const repoItem = document.createElement('li');
                     repoItem.className = 'repo-item';
@@ -74,6 +74,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     repoItem.appendChild(repoNameElement);
                     reposContainer.appendChild(repoItem);
 
+                    // Sprachen-Symbol hinzufügen
+                    fetchRepoLanguage(repo.name, repoNameElement); // NEU: Sprache laden
+
                     repoItem.addEventListener('click', () => {
                         showRepoDetails(repo.name);
                         setActiveTab(null);
@@ -84,6 +87,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Fehler beim Laden der Repositories:', error);
                 reposContainer.innerHTML = '<li>Projekte konnten nicht geladen werden. Bitte versuche es später erneut.</li>';
             });
+    }
+
+    function fetchRepoLanguage(repoName, targetElement) {
+        fetch(`https://api.github.com/repos/${username}/${repoName}/languages`)
+            .then(response => {
+                if (!response.ok) throw new Error('Could not fetch languages');
+                return response.json();
+            })
+            .then(languages => {
+                const totalBytes = Object.values(languages).reduce((sum, bytes) => sum + bytes, 0);
+                if (totalBytes === 0) return; // Keine Sprachen gefunden
+
+                // Finde die Sprache mit den meisten Bytes
+                let mostUsedLanguage = '';
+                let maxBytes = 0;
+                for (const lang in languages) {
+                    if (languages[lang] > maxBytes) {
+                        maxBytes = languages[lang];
+                        mostUsedLanguage = lang;
+                    }
+                }
+
+                if (mostUsedLanguage) {
+                    const langSpan = document.createElement('span');
+                    langSpan.className = 'language-icon';
+                    langSpan.style.backgroundColor = getLanguageColor(mostUsedLanguage); // Hole die Farbe
+                    langSpan.title = mostUsedLanguage; // Tooltip für den Namen
+                    targetElement.appendChild(langSpan);
+                }
+            })
+            .catch(error => {
+                console.warn(`Fehler beim Laden der Sprache für ${repoName}:`, error);
+                // Optional: Füge hier ein Standard-Symbol oder eine Fehlermeldung hinzu
+            });
+    }
+
+    function getLanguageColor(language) {
+        switch (language) {
+            case 'JavaScript': return '#f1e05a';
+            case 'HTML': return '#e34c26';
+            case 'CSS': return '#563d7c';
+            case 'Python': return '#3572A5';
+            case 'Java': return '#b07219';
+            case 'C#': return '#178600';
+            case 'TypeScript': return '#2b7489';
+            case 'C++': return '#f34b7d';
+            case 'C': return '#555555';
+            case 'PHP': return '#4F5D95';
+            case 'Ruby': return '#701516';
+            case 'Go': return '#00ADD8';
+            case 'Shell': return '#89e051';
+            case 'Vue': return '#41b883';
+            case 'Svelte': return '#ff3e00';
+            case 'Dart': return '#00B4AB';
+            case 'Kotlin': return '#A97BFF';
+            case 'Rust': return '#dea584';
+            case 'Swift': return '#ffac45';
+            default: return '#cccccc'; // Standardfarbe für unbekannte Sprachen
+        }
     }
 
     function showRepoDetails(repoName) {
