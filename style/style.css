@@ -28,9 +28,6 @@ body {
     position: relative;
     transition: margin-left 0.3s ease; /* Übergang für main-content bei Sidebar-Änderung */
 }
-
-/* Neuer CSS für die Sidebar-Header und den Toggle-Button */
-.sidebar-header {
 /* Neuer CSS für die Sidebar-Header und den Toggle-Button */
 .sidebar-header {
     display: flex;
