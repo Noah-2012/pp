@@ -94,7 +94,8 @@ body {
 
 /* Anpassung des Main-Content, wenn Sidebar eingeklappt ist */
 .sidebar.collapsed + .main-content {
-    margin-left: -240px; /* 300px - 60px = 240px -> main-content nach links verschieben */
+    /* margin-left: -240px; <-- Diese Zeile entfernen oder auskommentieren */
+    /* Der main-content passt sich durch flex: 1; automatisch an */
 }
 .nav-bar {
     display: flex;
