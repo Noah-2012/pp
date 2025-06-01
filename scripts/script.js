@@ -89,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    // Funktion zum Abrufen der meistgenutzten Sprache und Hinzufügen eines Symbols
     function fetchRepoLanguage(repoName, targetElement) {
         fetch(`https://api.github.com/repos/${username}/${repoName}/languages`)
             .then(response => {
@@ -110,11 +111,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 if (mostUsedLanguage) {
-                    const langSpan = document.createElement('span');
-                    langSpan.className = 'language-icon';
-                    langSpan.style.backgroundColor = getLanguageColor(mostUsedLanguage); // Hole die Farbe
-                    langSpan.title = mostUsedLanguage; // Tooltip für den Namen
-                    targetElement.appendChild(langSpan);
+                    const iconClass = getLanguageIconClass(mostUsedLanguage); // NEU: Icon-Klasse holen
+                    if (iconClass) {
+                        const langIcon = document.createElement('i');
+                        langIcon.className = `language-icon ${iconClass}`; // Füge Icon-Klasse hinzu
+                        langIcon.title = mostUsedLanguage; // Tooltip für den Namen
+                        langIcon.style.color = getLanguageColor(mostUsedLanguage); // NEU: Farbe des Icons setzen
+                        targetElement.appendChild(langIcon);
+                    } else {
+                        // Optional: Fallback zu einem Punkt oder Text, wenn kein Icon gefunden
+                        const langSpan = document.createElement('span');
+                        langSpan.className = 'language-icon language-dot'; // Eine Klasse für den Punkt-Fallback
+                        langSpan.title = mostUsedLanguage;
+                        langSpan.style.backgroundColor = getLanguageColor(mostUsedLanguage);
+                        targetElement.appendChild(langSpan);
+                    }
                 }
             })
             .catch(error => {
@@ -123,6 +134,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    // NEU: Hilfsfunktion für Font Awesome Icon-Klassen der Programmiersprachen
+    // Wichtig: 'fab' steht für Brand Icons, 'fas' für Solid Icons.
+    // Nicht alle Sprachen haben ein spezifisches Brand-Icon in Font Awesome 5.
+    function getLanguageIconClass(language) {
+        switch (language.toLowerCase()) { // Kleinbuchstaben für bessere Übereinstimmung
+            case 'javascript': return 'fab fa-js';
+            case 'html': return 'fab fa-html5';
+            case 'css': return 'fab fa-css3-alt';
+            case 'python': return 'fab fa-python';
+            case 'java': return 'fab fa-java';
+            case 'c#': return 'fab fa-node-js'; // C# hat kein direktes FA-Icon, Node.js als Platzhalter oder neutrales Icon
+            case 'typescript': return 'fab fa-node-js'; // TypeScript hat auch kein direktes FA-Icon
+            case 'c++': return 'fas fa-file-code'; // Generisches Code-Datei-Icon
+            case 'c': return 'fas fa-file-code'; // Generisches Code-Datei-Icon
+            case 'php': return 'fab fa-php';
+            case 'ruby': return 'fas fa-gem'; // Generisches Edelstein-Icon oft für Ruby verwendet
+            case 'go': return 'fab fa-gofore'; // Go hat ein Icon
+            case 'shell': return 'fas fa-terminal'; // Terminal-Icon
+            case 'vue': return 'fab fa-vuejs';
+            case 'react': return 'fab fa-react';
+            case 'angular': return 'fab fa-angular';
+            case 'swift': return 'fab fa-swift';
+            case 'dart': return 'fas fa-circle-notch'; // Generisches Rad-Icon oder Dot
+            case 'kotlin': return 'fas fa-code'; // Generisches Code-Icon
+            case 'rust': return 'fas fa-wrench'; // Generisches Werkzeug-Icon
+            default: return null; // Kein spezifisches Icon gefunden
+        }
+    }
+
+    // Die Funktion getLanguageColor bleibt wie sie ist (oder du kannst sie entfernen, wenn du Farben nur noch über CSS steuern willst)
     function getLanguageColor(language) {
         switch (language) {
             case 'JavaScript': return '#f1e05a';
@@ -146,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'Swift': return '#ffac45';
             default: return '#cccccc'; // Standardfarbe für unbekannte Sprachen
         }
-    }
+    }    
 
     function showRepoDetails(repoName) {
         if (!repoName) return;
