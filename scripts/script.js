@@ -11,7 +11,38 @@ document.addEventListener('DOMContentLoaded', function() {
     const futureProjectsContainer = document.getElementById('futureProjectsContainer');
     const clockElement = document.getElementById('clock');
     const repoActions = document.getElementById('repoActions');
+    // NEU: Benutzerdefinierter Marked.js Renderer für relative Bildpfade
+    const githubMarkdownRenderer = new marked.Renderer();
 
+    // Methode zum Überschreiben der Bildverarbeitung
+    githubMarkdownRenderer.image = function(href, title, text) {
+        // Überprüfen, ob href eine relative URL ist
+        // Eine relative URL beginnt nicht mit 'http://', 'https://', '//' oder 'data:'
+        const isRelative = href && !href.startsWith('http://') && 
+                           !href.startsWith('https://') && 
+                           !href.startsWith('//') &&
+                           !href.startsWith('data:');
+
+        let absoluteHref = href;
+
+        if (isRelative) {
+            // Beispiel: 'images/pic3.png' wird zu 'https://raw.githubusercontent.com/Noah-2012/repoName/main/images/pic3.png'
+            // Wichtig: 'repoName' muss dynamisch gesetzt werden, daher übergeben wir es später.
+            // Zuerst nur den Pfad erstellen, die Basis-URL wird später hinzugefügt.
+            // Derzeitige Lösung: Wir müssen die Basis-URL dynamisch einfügen.
+            // Dies ist ein Platzhalter, der in showRepoDetails ersetzt wird.
+            absoluteHref = `__GITHUB_RAW_BASE_URL__/${href}`; 
+        }
+
+        let out = `<img src="${absoluteHref}" alt="${text}"`;
+        if (title) {
+            out += ` title="${title}"`;
+        }
+        out += '>';
+        return out;
+    };
+
+    
     // Neue Elemente für die Sidebar
     const sidebar = document.getElementById('mySidebar');
     const sidebarToggle = document.getElementById('sidebarToggle');
@@ -197,6 +228,9 @@ document.addEventListener('DOMContentLoaded', function() {
         aboutMeContainer.style.display = 'none';
         futureProjectsContainer.style.display = 'none';
 
+        // NEU: Basis-URL für Rohdateien im aktuellen Repository
+        const githubRawBaseUrl = `https://raw.githubusercontent.com/${username}/${repoName}/main`;
+
         fetch(`https://api.github.com/repos/${username}/${repoName}/readme`, {
             headers: {
                 'Accept': 'application/vnd.github.v3.raw'
@@ -207,8 +241,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.text();
             })
             .then(text => {
+                // NEU: Text vor dem Parsen vorbereiten, um den Platzhalter zu ersetzen
+                // Dies ist ein Workaround, da der Marked Renderer nicht direkt dynamische Daten erhält.
+                // Eine bessere Methode wäre, den Renderer bei jedem Aufruf neu zu konfigurieren,
+                // aber das hier ist für den Anfang einfacher.
+                const processedText = text.replace(/src="(?!https?:\/\/)(?!data:)(?!__GITHUB_RAW_BASE_URL__)([^"]+)"/g, (match, p1) => {
+                    // Ersetze nur relative src-Attribute, die nicht schon absolute URLs sind
+                    // und nicht unseren eigenen Platzhalter enthalten.
+                    return `src="${githubRawBaseUrl}/${p1}"`;
+                });
+                // Falls es Markdown-Bilder gibt: ![alt text](images/pic.png)
+                const markdownProcessedText = processedText.replace(/!\[(.*?)\]\((?!https?:\/\/)(?!data:)([^)]+)\)/g, (match, p1, p2) => {
+                    // Ersetze relative Markdown-Bildpfade
+                    return `![${p1}](${githubRawBaseUrl}/${p2})`;
+                });
+
+
                 readmeContainer.innerHTML = `<h2>${repoName}</h2><hr>` + 
-                    (window.marked ? marked.parse(text) : text);
+                    (window.marked ? marked.parse(markdownProcessedText) : markdownProcessedText);
+                    // Den geparsten Text an marked.parse übergeben
             })
             .catch(() => {
                 readmeContainer.innerHTML = 
