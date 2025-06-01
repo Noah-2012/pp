@@ -12,10 +12,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const clockElement = document.getElementById('clock');
     const repoActions = document.getElementById('repoActions');
 
+    // Neue Elemente für die Sidebar
+    const sidebar = document.getElementById('mySidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+
     // Überprüfen, ob alle benötigten Elemente vorhanden sind
     if (!reposContainer || !titleContainer || !readmeContainer || !homeTab || 
         !aboutMeTab || !aboutMeContainer || !futureProjectsTab || 
-        !futureProjectsContainer || !clockElement || !repoActions) {
+        !futureProjectsContainer || !clockElement || !repoActions ||
+        !sidebar || !sidebarToggle) { // Neue Überprüfung
         console.error('Ein oder mehrere erforderliche DOM-Elemente fehlen');
         return;
     }
@@ -37,6 +42,11 @@ document.addEventListener('DOMContentLoaded', function() {
     aboutMeTab.addEventListener('click', loadAboutMe);
     futureProjectsTab.addEventListener('click', loadFutureProjects);
 
+    // Sidebar Ein-/Ausklappen Funktionalität
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('collapsed');
+    });
+
     // Lade GitHub Repositories
     function fetchRepositories() {
         fetch(`https://api.github.com/users/${username}/repos`)
@@ -52,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 reposContainer.innerHTML = '';
                 
                 repos.forEach(repo => {
-                    if (!repo.name) return; // Überspringen, wenn kein Name vorhanden
+                    if (!repo.name) return;
                     
                     const repoItem = document.createElement('li');
                     repoItem.className = 'repo-item';
