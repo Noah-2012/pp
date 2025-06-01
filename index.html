@@ -9,15 +9,15 @@
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar mit GitHub-Repos -->
-        <div class="sidebar">
-            <h2>Meine Projekte</h2>
-            <ul class="repo-list" id="repos"></ul>
+        <div class="sidebar" id="mySidebar"> <div class="sidebar-header"> <h2>Meine Projekte</h2>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-chevron-left"></i> </button>
+            </div>
+            <div class="sidebar-content"> <ul class="repo-list" id="repos"></ul>
+            </div>
         </div>
 
-        <!-- Hauptinhalt -->
         <div class="main-content">
-            <!-- Navigationsleiste mit Uhr -->
             <div class="nav-bar">
                 <div class="nav-tabs">
                     <div class="nav-tab active" id="homeTab">Home</div>
@@ -31,13 +31,10 @@
                 <h1>Noadsch12</h1>
             </div>
             
-            <!-- Neuer Container für About Me -->
             <div class="about-me-container" id="aboutMeContainer"></div>
             
-            <!-- Container für Future Projects -->
             <div class="future-projects-container" id="futureProjectsContainer"></div>
             
-            <!-- Container für READMEs -->
             <div class="readme-container" id="readmeContainer"></div>
 
             <div class="repo-actions" id="repoActions"></div>
@@ -45,7 +42,6 @@
     </div>
     <img src="https://64.media.tumblr.com/bede51b12c57730706086736c0799d59/d79b386dd434d7d8-3d/s100x200/6d04ab4ed8b39d3c36a4b53d65d8bd132b5f9904.pnj" class="gif1">
     <script src="scripts/script.js"></script>
-    <!-- Markdown-Parser -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
