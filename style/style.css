@@ -167,20 +167,24 @@ h1 {
     background-color: #444c56;
 }
 .repo-name {
-    display: flex; /* Macht den Namen und das Symbol nebeneinander */
-    align-items: center; /* Zentriert vertikal */
-    gap: 8px; /* Abstand zwischen Text und Symbol */
+    display: flex;
+    align-items: center;
+    gap: 8px; 
     font-weight: bold;
-    color: var(--repo-name-color); /* Nutzt die CSS-Variable */
+    color: var(--repo-name-color);
     margin: 0;
 }
 .language-icon {
-    width: 10px; /* Größe des Symbols */
+    font-size: 1.1em;
+    vertical-align: middle;
+}
+.language-icon.language-dot {
+    width: 10px;
     height: 10px;
-    border-radius: 50%; /* Rundes Symbol */
+    border-radius: 50%;
     display: inline-block;
-    flex-shrink: 0; /* Verhindert, dass das Symbol kleiner wird */
-    border: 1px solid rgba(0,0,0,0.2); /* Kleiner Rand, falls nötig */
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.2);
 }
 .readme-container, .future-projects-container {
     background: white;
