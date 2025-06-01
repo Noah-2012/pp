@@ -20,7 +20,7 @@ body {
     top: 0;
     height: 100vh;
     overflow-y: auto;
-    transition: width 0.3s ease; /* Übergang für die Breite */
+    transition: width 0.3s ease, padding 0.3s ease; /* Übergang für Breite UND Padding */
 }
 .main-content {
     flex: 1;
@@ -29,6 +29,8 @@ body {
     transition: margin-left 0.3s ease; /* Übergang für main-content bei Sidebar-Änderung */
 }
 
+/* Neuer CSS für die Sidebar-Header und den Toggle-Button */
+.sidebar-header {
 /* Neuer CSS für die Sidebar-Header und den Toggle-Button */
 .sidebar-header {
     display: flex;
@@ -41,7 +43,7 @@ body {
     margin: 0; /* Standard-Margin von h2 entfernen */
     white-space: nowrap; /* Verhindert Zeilenumbruch des Titels */
     overflow: hidden;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, width 0.3s ease; /* Übergang für Deckkraft UND Breite */
 }
 
 .sidebar-toggle {
@@ -61,7 +63,10 @@ body {
 /* Neuer CSS für den Sidebar-Inhalt */
 .sidebar-content {
     overflow: hidden; /* Inhalt verbergen, wenn nicht genug Platz */
-    transition: opacity 0.3s ease;
+    max-height: 1000px; /* Genug Platz für den gesamten Inhalt, anpassen falls Projekte sehr lang sind */
+    opacity: 1;
+    transition: max-height 0.5s ease-out, opacity 0.3s ease-out; /* Sanfter Übergang für Höhe und Deckkraft */
+    visibility: visible; /* Standardmäßig sichtbar */
 }
 
 /* Zustand, wenn die Seitenleiste eingeklappt ist */
@@ -84,15 +89,15 @@ body {
 }
 
 .sidebar.collapsed .sidebar-content {
+    max-height: 0; /* Höhe auf 0 setzen, um Platz zu sparen */
     opacity: 0; /* Inhalt ausblenden */
-    height: 0; /* Höhe auf 0 setzen, um Platz zu sparen */
-    visibility: hidden; /* Inhalt nicht anklickbar machen */
+    transition: max-height 0.5s ease-out, opacity 0.3s ease-out 0.2s, visibility 0s 0.5s;
+    visibility: hidden; /* Inhalt nicht anklickbar machen, NACHDEM die Animation fertig ist */
 }
 
 /* Anpassung des Main-Content, wenn Sidebar eingeklappt ist */
 .sidebar.collapsed + .main-content {
     margin-left: -240px; /* 300px - 60px = 240px -> main-content nach links verschieben */
-    /* Oder alternativ die breite vom main-content anpassen, je nach dem was du willst */
 }
 .nav-bar {
     display: flex;
