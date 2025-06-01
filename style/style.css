@@ -11,7 +11,7 @@ body {
     min-height: 100vh;
 }
 .sidebar {
-    width: 300px;
+    width: 300px; /* Standardbreite der aufgeklappten Seitenleiste */
     background-color: #24292e;
     color: white;
     padding: 20px;
@@ -20,11 +20,79 @@ body {
     top: 0;
     height: 100vh;
     overflow-y: auto;
+    transition: width 0.3s ease; /* Übergang für die Breite */
 }
 .main-content {
     flex: 1;
     padding: 20px;
     position: relative;
+    transition: margin-left 0.3s ease; /* Übergang für main-content bei Sidebar-Änderung */
+}
+
+/* Neuer CSS für die Sidebar-Header und den Toggle-Button */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px; /* Abstand zum Inhalt */
+}
+
+.sidebar-header h2 {
+    margin: 0; /* Standard-Margin von h2 entfernen */
+    white-space: nowrap; /* Verhindert Zeilenumbruch des Titels */
+    overflow: hidden;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.3s ease; /* Übergang für das Icon */
+}
+
+.sidebar-toggle:hover {
+    color: #ccc;
+}
+
+/* Neuer CSS für den Sidebar-Inhalt */
+.sidebar-content {
+    overflow: hidden; /* Inhalt verbergen, wenn nicht genug Platz */
+    transition: opacity 0.3s ease;
+}
+
+/* Zustand, wenn die Seitenleiste eingeklappt ist */
+.sidebar.collapsed {
+    width: 60px; /* Kleinere Breite, wenn eingeklappt */
+    padding: 10px; /* Weniger Padding */
+}
+
+.sidebar.collapsed .sidebar-header {
+    justify-content: center; /* Button zentrieren */
+}
+
+.sidebar.collapsed .sidebar-header h2 {
+    opacity: 0; /* Titel ausblenden */
+    width: 0; /* Breite auf 0 setzen */
+}
+
+.sidebar.collapsed .sidebar-toggle {
+    transform: rotate(180deg); /* Pfeil drehen */
+}
+
+.sidebar.collapsed .sidebar-content {
+    opacity: 0; /* Inhalt ausblenden */
+    height: 0; /* Höhe auf 0 setzen, um Platz zu sparen */
+    visibility: hidden; /* Inhalt nicht anklickbar machen */
+}
+
+/* Anpassung des Main-Content, wenn Sidebar eingeklappt ist */
+.sidebar.collapsed + .main-content {
+    margin-left: -240px; /* 300px - 60px = 240px -> main-content nach links verschieben */
+    /* Oder alternativ die breite vom main-content anpassen, je nach dem was du willst */
 }
 .nav-bar {
     display: flex;
@@ -197,7 +265,26 @@ h1 {
         width: 100%;
         height: auto;
         position: relative;
+        /* Für mobile Ansicht auch den toggle button nutzen */
+        /* Wenn sidebar auf mobile ausgeklappt ist, soll sie sich auf die volle Breite erstrecken und der Inhalt sichtbar sein */
     }
+
+    .sidebar.collapsed {
+        height: auto; /* Höhe anpassen, damit nur Header sichtbar ist */
+        width: 100%;
+    }
+
+    .sidebar.collapsed .sidebar-content {
+        display: none; /* Inhalt auf Mobilgeräten komplett ausblenden */
+        height: auto;
+        opacity: 1; /* Transparenz zurücksetzen */
+        visibility: visible; /* Sichtbarkeit zurücksetzen */
+    }
+
+    .sidebar-toggle {
+        font-size: 1.2rem; /* Kleinerer Button auf Mobilgeräten */
+    }
+
     .title-container {
         position: relative;
         top: auto;
@@ -209,7 +296,7 @@ h1 {
         top: 20px;
         transform: none;
     }
-    .nav-bar {
+    .nav-bar  {
         flex-direction: column;
         gap: 10px;
     }
@@ -221,4 +308,4 @@ h1 {
         width: 100%;
         text-align: center;
     }
-}
+} 
