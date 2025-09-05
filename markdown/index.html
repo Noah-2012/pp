@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Renderer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) rotate(180deg); }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .file-selector {
+            padding: 30px;
+            border-bottom: 1px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            min-width: 120px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            min-width: 250px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .content {
+            padding: 40px;
+            min-height: 400px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            border-left: 4px solid #e74c3c;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            color: #c0392b;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            border-left: 4px solid #27ae60;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            color: #27ae60;
+        }
+
+        /* Markdown Styling */
+        .markdown-content {
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3,
+        .markdown-content h4,
+        .markdown-content h5,
+        .markdown-content h6 {
+            margin: 30px 0 15px 0;
+            color: #2c3e50;
+        }
+
+        .markdown-content h1 {
+            font-size: 2.5em;
+            border-bottom: 3px solid #4facfe;
+            padding-bottom: 10px;
+        }
+
+        .markdown-content h2 {
+            font-size: 2em;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 8px;
+        }
+
+        .markdown-content p {
+            margin: 15px 0;
+        }
+
+        .markdown-content code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #e74c3c;
+        }
+
+        .markdown-content pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .markdown-content pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        .markdown-content blockquote {
+            border-left: 4px solid #4facfe;
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #666;
+        }
+
+        .markdown-content ul,
+        .markdown-content ol {
+            margin: 15px 0 15px 30px;
+        }
+
+        .markdown-content li {
+            margin: 5px 0;
+        }
+
+        .markdown-content a {
+            color: #4facfe;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .markdown-content a:hover {
+            color: #00f2fe;
+            text-decoration: underline;
+        }
+
+        .markdown-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .markdown-content th,
+        .markdown-content td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .markdown-content th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .input-group label {
+                min-width: auto;
+            }
+            
+            .input-group input {
+                min-width: auto;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Markdown Renderer</h1>
+            <p>Lade und rendere Markdown-Dateien mit Stil</p>
+        </div>
+        
+        <div class="file-selector">
+            <div class="input-group">
+                <label for="fileInput">Datei URL:</label>
+                <input type="text" id="fileInput" placeholder="z.B. README.md oder pfad/zur/datei.md">
+                <button class="btn" onclick="loadMarkdown()">Laden</button>
+            </div>
+        </div>
+        
+        <div class="content" id="content">
+            <div class="loading" id="initialMessage">
+                <h2>Willkommen!</h2>
+                <p>Gib eine Markdown-Datei an, um sie zu rendern. Du kannst auch den URL-Parameter <code>?file=dateiname.md</code> verwenden.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // URL Parameter auslesen
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Markdown laden und rendern
+        async function loadMarkdown(filename = null) {
+            const contentDiv = document.getElementById('content');
+            const fileInput = document.getElementById('fileInput');
+            
+            // Dateiname bestimmen
+            const file = filename || fileInput.value || getUrlParameter('file');
+            
+            if (!file) {
+                showError('Bitte gib eine Datei an.');
+                return;
+            }
+
+            // Loading anzeigen
+            showLoading();
+
+            try {
+                // Datei lesen mit der window.fs API
+                const fileContent = await window.fs.readFile(file, { encoding: 'utf8' });
+                
+                // Markdown zu HTML konvertieren
+                const htmlContent = marked.parse(fileContent);
+                
+                // Inhalt anzeigen
+                contentDiv.innerHTML = `
+                    <div class="success-message">
+                        ✅ Datei "${file}" erfolgreich geladen
+                    </div>
+                    <div class="markdown-content">${htmlContent}</div>
+                `;
+                
+                // Input aktualisieren
+                fileInput.value = file;
+                
+            } catch (error) {
+                showError(`Fehler beim Laden der Datei "${file}": ${error.message}`);
+            }
+        }
+
+        // Loading-Anzeige
+        function showLoading() {
+            document.getElementById('content').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Lade Markdown-Datei...</p>
+                </div>
+            `;
+        }
+
+        // Fehler anzeigen
+        function showError(message) {
+            document.getElementById('content').innerHTML = `
+                <div class="error">
+                    <strong>❌ Fehler:</strong> ${message}
+                </div>
+                <div class="loading">
+                    <h3>Tipps:</h3>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li>Stelle sicher, dass die Datei existiert</li>
+                        <li>Verwende relative Pfade (z.B. "docs/README.md")</li>
+                        <li>Die Datei muss im selben Verzeichnis oder Unterverzeichnis liegen</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Enter-Taste im Input-Feld
+        document.getElementById('fileInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loadMarkdown();
+            }
+        });
+
+        // Beim Laden der Seite prüfen, ob eine Datei per URL-Parameter angegeben wurde
+        window.addEventListener('load', function() {
+            const fileParam = getUrlParameter('file');
+            if (fileParam) {
+                loadMarkdown(fileParam);
+            }
+        });
+
+        // File Upload Handler
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    const htmlContent = marked.parse(content);
+                    
+                    document.getElementById('content').innerHTML = `
+                        <div class="success-message">
+                            ✅ Datei "${file.name}" erfolgreich hochgeladen
+                        </div>
+                        <div class="markdown-content">${htmlContent}</div>
+                    `;
+                    
+                    document.getElementById('fileInput').value = file.name;
+                };
+                reader.readAsText(file);
+            }
+        }
+    </script>
+</body>
+</html>
