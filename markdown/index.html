@@ -6,11 +6,7 @@
     <title>Markdown Renderer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -31,14 +27,8 @@
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .header {
@@ -93,13 +83,9 @@
             flex-wrap: wrap;
         }
 
-        .input-group label {
-            font-weight: 600;
-            color: #333;
-            min-width: 120px;
-        }
+        .input-group label { font-weight: 600; color: #333; min-width: 120px; }
 
-        .input-group input {
+        .input-group input[type="text"] {
             flex: 1;
             padding: 12px 15px;
             border: 2px solid #e0e0e0;
@@ -140,40 +126,21 @@
             transition: left 0.5s;
         }
 
-        .btn:hover::before {
-            left: 100%;
-        }
+        .btn:hover::before { left: 100%; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
+        .content { padding: 40px; min-height: 400px; }
 
-        .content {
-            padding: 40px;
-            min-height: 400px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: #666;
-        }
-
+        .loading { text-align: center; padding: 60px 20px; color: #666; }
         .spinner {
-            width: 50px;
-            height: 50px;
+            width: 50px; height: 50px;
             border: 4px solid #f3f3f3;
             border-top: 4px solid #4facfe;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .error {
             background: #fee;
@@ -194,127 +161,25 @@
         }
 
         /* Markdown Styling */
-        .markdown-content {
-            line-height: 1.6;
-            color: #333;
-        }
-
-        .markdown-content h1,
-        .markdown-content h2,
-        .markdown-content h3,
-        .markdown-content h4,
-        .markdown-content h5,
-        .markdown-content h6 {
-            margin: 30px 0 15px 0;
-            color: #2c3e50;
-        }
-
-        .markdown-content h1 {
-            font-size: 2.5em;
-            border-bottom: 3px solid #4facfe;
-            padding-bottom: 10px;
-        }
-
-        .markdown-content h2 {
-            font-size: 2em;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 8px;
-        }
-
-        .markdown-content p {
-            margin: 15px 0;
-        }
-
-        .markdown-content code {
-            background: #f8f9fa;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            color: #e74c3c;
-        }
-
-        .markdown-content pre {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 20px;
-            border-radius: 10px;
-            overflow-x: auto;
-            margin: 20px 0;
-        }
-
-        .markdown-content pre code {
-            background: none;
-            color: inherit;
-            padding: 0;
-        }
-
-        .markdown-content blockquote {
-            border-left: 4px solid #4facfe;
-            padding-left: 20px;
-            margin: 20px 0;
-            font-style: italic;
-            color: #666;
-        }
-
-        .markdown-content ul,
-        .markdown-content ol {
-            margin: 15px 0 15px 30px;
-        }
-
-        .markdown-content li {
-            margin: 5px 0;
-        }
-
-        .markdown-content a {
-            color: #4facfe;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .markdown-content a:hover {
-            color: #00f2fe;
-            text-decoration: underline;
-        }
-
-        .markdown-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        .markdown-content th,
-        .markdown-content td {
-            border: 1px solid #e0e0e0;
-            padding: 12px;
-            text-align: left;
-        }
-
-        .markdown-content th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
+        .markdown-content { line-height: 1.6; color: #333; }
+        .markdown-content h1 { font-size: 2.5em; border-bottom: 3px solid #4facfe; padding-bottom: 10px; margin: 30px 0 15px; }
+        .markdown-content h2 { font-size: 2em; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; margin: 30px 0 15px; }
+        .markdown-content p { margin: 15px 0; }
+        .markdown-content code { background: #f8f9fa; padding: 2px 6px; border-radius: 4px; font-family: 'Consolas','Monaco',monospace; color: #e74c3c; }
+        .markdown-content pre { background: #2d3748; color: #e2e8f0; padding: 20px; border-radius: 10px; overflow-x: auto; margin: 20px 0; }
+        .markdown-content blockquote { border-left: 4px solid #4facfe; padding-left: 20px; margin: 20px 0; font-style: italic; color: #666; }
+        .markdown-content a { color: #4facfe; text-decoration: none; }
+        .markdown-content a:hover { color: #00f2fe; text-decoration: underline; }
+        .markdown-content table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .markdown-content th, .markdown-content td { border: 1px solid #e0e0e0; padding: 12px; text-align: left; }
+        .markdown-content th { background: #f8f9fa; font-weight: 600; }
 
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .input-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .input-group label {
-                min-width: auto;
-            }
-            
-            .input-group input {
-                min-width: auto;
-            }
-            
-            .content {
-                padding: 20px;
-            }
+            .header h1 { font-size: 2em; }
+            .input-group { flex-direction: column; align-items: stretch; }
+            .input-group label { min-width: auto; }
+            .input-group input { min-width: auto; }
+            .content { padding: 20px; }
         }
     </style>
 </head>
@@ -331,12 +196,16 @@
                 <input type="text" id="fileInput" placeholder="z.B. README.md oder pfad/zur/datei.md">
                 <button class="btn" onclick="loadMarkdown()">Laden</button>
             </div>
+            <div class="input-group" style="margin-top:15px;">
+                <label for="uploadInput">Oder hochladen:</label>
+                <input type="file" id="uploadInput" accept=".md" onchange="handleFileUpload(event)">
+            </div>
         </div>
         
         <div class="content" id="content">
             <div class="loading" id="initialMessage">
                 <h2>Willkommen!</h2>
-                <p>Gib eine Markdown-Datei an, um sie zu rendern. Du kannst auch den URL-Parameter <code>?file=dateiname.md</code> verwenden.</p>
+                <p>Gib eine Markdown-Datei an oder lade eine hoch. Du kannst auch den URL-Parameter <code>?file=dateiname.md</code> verwenden.</p>
             </div>
         </div>
     </div>
@@ -348,40 +217,33 @@
             return urlParams.get(name);
         }
 
-        // Markdown laden und rendern
+        // Markdown per URL/Pfad laden
         async function loadMarkdown(filename = null) {
             const contentDiv = document.getElementById('content');
             const fileInput = document.getElementById('fileInput');
-            
-            // Dateiname bestimmen
+
             const file = filename || fileInput.value || getUrlParameter('file');
-            
             if (!file) {
                 showError('Bitte gib eine Datei an.');
                 return;
             }
 
-            // Loading anzeigen
             showLoading();
 
             try {
-                // Datei lesen mit der window.fs API
-                const fileContent = await window.fs.readFile(file, { encoding: 'utf8' });
-                
-                // Markdown zu HTML konvertieren
+                const response = await fetch(file);
+                if (!response.ok) throw new Error(`HTTP ${response.status} – ${response.statusText}`);
+
+                const fileContent = await response.text();
                 const htmlContent = marked.parse(fileContent);
-                
-                // Inhalt anzeigen
+
                 contentDiv.innerHTML = `
                     <div class="success-message">
                         ✅ Datei "${file}" erfolgreich geladen
                     </div>
                     <div class="markdown-content">${htmlContent}</div>
                 `;
-                
-                // Input aktualisieren
                 fileInput.value = file;
-                
             } catch (error) {
                 showError(`Fehler beim Laden der Datei "${file}": ${error.message}`);
             }
@@ -406,9 +268,9 @@
                 <div class="loading">
                     <h3>Tipps:</h3>
                     <ul style="text-align: left; display: inline-block;">
-                        <li>Stelle sicher, dass die Datei existiert</li>
+                        <li>Stelle sicher, dass die Datei existiert und per HTTP erreichbar ist</li>
                         <li>Verwende relative Pfade (z.B. "docs/README.md")</li>
-                        <li>Die Datei muss im selben Verzeichnis oder Unterverzeichnis liegen</li>
+                        <li>Oder lade die Datei direkt über den Upload hoch</li>
                     </ul>
                 </div>
             `;
@@ -416,17 +278,13 @@
 
         // Enter-Taste im Input-Feld
         document.getElementById('fileInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                loadMarkdown();
-            }
+            if (e.key === 'Enter') loadMarkdown();
         });
 
         // Beim Laden der Seite prüfen, ob eine Datei per URL-Parameter angegeben wurde
         window.addEventListener('load', function() {
             const fileParam = getUrlParameter('file');
-            if (fileParam) {
-                loadMarkdown(fileParam);
-            }
+            if (fileParam) loadMarkdown(fileParam);
         });
 
         // File Upload Handler
@@ -437,14 +295,13 @@
                 reader.onload = function(e) {
                     const content = e.target.result;
                     const htmlContent = marked.parse(content);
-                    
+
                     document.getElementById('content').innerHTML = `
                         <div class="success-message">
                             ✅ Datei "${file.name}" erfolgreich hochgeladen
                         </div>
                         <div class="markdown-content">${htmlContent}</div>
                     `;
-                    
                     document.getElementById('fileInput').value = file.name;
                 };
                 reader.readAsText(file);
