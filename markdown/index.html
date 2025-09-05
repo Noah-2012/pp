@@ -40,35 +40,8 @@
             overflow: hidden;
         }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-            50% { transform: translate(-50%, -50%) rotate(180deg); }
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
-        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; position: relative; z-index: 1; }
+        .header p { font-size: 1.1em; opacity: 0.9; position: relative; z-index: 1; }
 
         .file-selector {
             padding: 30px;
@@ -160,7 +133,6 @@
             color: #27ae60;
         }
 
-        /* Markdown Styling */
         .markdown-content { line-height: 1.6; color: #333; }
         .markdown-content h1 { font-size: 2.5em; border-bottom: 3px solid #4facfe; padding-bottom: 10px; margin: 30px 0 15px; }
         .markdown-content h2 { font-size: 2em; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; margin: 30px 0 15px; }
@@ -190,7 +162,7 @@
             <p>Lade und rendere Markdown-Dateien mit Stil</p>
         </div>
         
-        <div class="file-selector">
+        <div class="file-selector" id="fileSelector">
             <div class="input-group">
                 <label for="fileInput">Datei URL:</label>
                 <input type="text" id="fileInput" placeholder="z.B. README.md oder pfad/zur/datei.md">
@@ -205,38 +177,34 @@
         <div class="content" id="content">
             <div class="loading" id="initialMessage">
                 <h2>Willkommen!</h2>
-                <p>Gib eine Markdown-Datei an oder lade eine hoch. Du kannst auch den URL-Parameter <code>?file=dateiname.md</code> verwenden.</p>
+                <p>Gib eine Markdown-Datei an oder lade eine hoch. Du kannst auch den URL-Parameter <code>?file=dateiname.md</code> verwenden.<br>
+                Mit <code>?board=true</code> kannst du die Eingabeleiste ausblenden.</p>
             </div>
         </div>
     </div>
 
     <script>
-        // URL Parameter auslesen
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
-        // Markdown per URL/Pfad laden
+        const boardMode = getUrlParameter("board")?.toLowerCase() === "true";
+
         async function loadMarkdown(filename = null) {
             const contentDiv = document.getElementById('content');
             const fileInput = document.getElementById('fileInput');
-
             const file = filename || fileInput.value || getUrlParameter('file');
             if (!file) {
                 showError('Bitte gib eine Datei an.');
                 return;
             }
-
             showLoading();
-
             try {
                 const response = await fetch(file);
                 if (!response.ok) throw new Error(`HTTP ${response.status} – ${response.statusText}`);
-
                 const fileContent = await response.text();
                 const htmlContent = marked.parse(fileContent);
-
                 contentDiv.innerHTML = `
                     <div class="success-message">
                         ✅ Datei "${file}" erfolgreich geladen
@@ -244,12 +212,14 @@
                     <div class="markdown-content">${htmlContent}</div>
                 `;
                 fileInput.value = file;
+                if (boardMode) {
+                    document.getElementById("fileSelector").style.display = "none";
+                }
             } catch (error) {
                 showError(`Fehler beim Laden der Datei "${file}": ${error.message}`);
             }
         }
 
-        // Loading-Anzeige
         function showLoading() {
             document.getElementById('content').innerHTML = `
                 <div class="loading">
@@ -259,35 +229,25 @@
             `;
         }
 
-        // Fehler anzeigen
         function showError(message) {
             document.getElementById('content').innerHTML = `
-                <div class="error">
-                    <strong>❌ Fehler:</strong> ${message}
-                </div>
-                <div class="loading">
-                    <h3>Tipps:</h3>
-                    <ul style="text-align: left; display: inline-block;">
-                        <li>Stelle sicher, dass die Datei existiert und per HTTP erreichbar ist</li>
-                        <li>Verwende relative Pfade (z.B. "docs/README.md")</li>
-                        <li>Oder lade die Datei direkt über den Upload hoch</li>
-                    </ul>
-                </div>
+                <div class="error"><strong>❌ Fehler:</strong> ${message}</div>
             `;
         }
 
-        // Enter-Taste im Input-Feld
         document.getElementById('fileInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') loadMarkdown();
         });
 
-        // Beim Laden der Seite prüfen, ob eine Datei per URL-Parameter angegeben wurde
         window.addEventListener('load', function() {
             const fileParam = getUrlParameter('file');
             if (fileParam) loadMarkdown(fileParam);
+            if (boardMode && !fileParam) {
+                // Falls board=true aber keine Datei angegeben wurde → Eingabe verstecken
+                document.getElementById("fileSelector").style.display = "none";
+            }
         });
 
-        // File Upload Handler
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) {
@@ -295,7 +255,6 @@
                 reader.onload = function(e) {
                     const content = e.target.result;
                     const htmlContent = marked.parse(content);
-
                     document.getElementById('content').innerHTML = `
                         <div class="success-message">
                             ✅ Datei "${file.name}" erfolgreich hochgeladen
@@ -303,6 +262,9 @@
                         <div class="markdown-content">${htmlContent}</div>
                     `;
                     document.getElementById('fileInput').value = file.name;
+                    if (boardMode) {
+                        document.getElementById("fileSelector").style.display = "none";
+                    }
                 };
                 reader.readAsText(file);
             }
