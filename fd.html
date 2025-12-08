@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GitHub File Browser</title>
+<style>
+    body{font-family:system-ui;margin:20px;color:#222}
+    ul{list-style:none;padding-left:20px}
+    li{margin:4px 0}
+    a{text-decoration:none;color:#064;cursor:pointer} /* Cursor pointer hinzugefügt */
+    a:hover{text-decoration:underline}
+    .muted{color:#777}
+</style>
+</head>
+<body>
+
+<h2>Dateibrowser – Repository: noah-2012/pp</h2>
+<div id="path" class="muted"></div>
+<div id="list">Laden…</div>
+
+<script>
+const user = "noah-2012";
+const repo = "pp";
+
+// URL-Parameter ?p=pfad
+const params = new URLSearchParams(location.search);
+let currentPath = params.get("p") || "";
+
+function apiUrl(path){
+    return `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+}
+
+async function load(path){
+    document.getElementById("path").textContent = "/" + path;
+
+    try {
+        const res = await fetch(apiUrl(path));
+        
+        if (!res.ok) throw new Error("Netzwerkfehler oder Pfad nicht gefunden");
+        
+        const data = await res.json();
+
+        if(!Array.isArray(data)){
+            // Das passiert, wenn man versehentlich eine Datei als Pfad angibt
+            document.getElementById("list").innerHTML = "<p>Kein Verzeichnis.</p>";
+            return;
+        }
+
+        let html = "<ul>";
+
+        // ".." Link
+        if(path !== ""){
+            const up = path.split("/").slice(0, -1).join("/");
+            html += `<li>📁 <a href="?p=${encodeURIComponent(up)}">..</a></li>`;
+        }
+
+        // Inhalte anzeigen
+        for(const item of data){
+            const name = item.name;
+            const isDir = item.type === "dir";
+            const fullPath = (path ? path + "/" : "") + name;
+
+            if(isDir){
+                html += `<li>📁 <a href="?p=${encodeURIComponent(fullPath)}">${name}/</a></li>`;
+            } else {
+                const ext = name.toLowerCase().split(".").pop();
+                // HTML Dateien normal öffnen, alles andere über den Downloader
+                if(ext === "html" || ext === "htm"){
+                    html += `<li>📄 <a target="_blank" href="${item.download_url}">${name}</a></li>`;
+                } else {
+                    html += `<li>📄 <a class="dl" data-url="${item.download_url}" data-name="${name}">${name}</a></li>`;
+                }
+            }
+        }
+
+        html += "</ul>";
+        
+        // 1. Erst HTML einfügen
+        document.getElementById("list").innerHTML = html;
+
+        // 2. DANN die Event Listener hinzufügen (und danach NICHT mehr das innerHTML anfassen)
+        document.querySelectorAll('.dl').forEach(a => {
+            a.addEventListener('click', ev => {
+                ev.preventDefault();
+                // Kleines visuelles Feedback
+                const originalText = a.textContent;
+                a.textContent = "Lade...";
+                
+                forceDownload(a.dataset.url, a.dataset.name)
+                    .finally(() => { a.textContent = originalText; });
+            });
+        });
+
+    } catch (e) {
+        document.getElementById("list").innerHTML = `<p>Fehler: ${e.message}</p>`;
+    }
+}
+
+// Download-Funktion
+async function forceDownload(url, filename){
+    try{
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        
+        // Speicher freigeben
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+    }catch(e){
+        alert("Download fehlgeschlagen: " + e);
+    }
+}
+
+load(currentPath);
+</script>
+
+</body>
+</html>
