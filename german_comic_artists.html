@@ -238,6 +238,29 @@
             opacity: 0.9;
         }
 
+        .work-image-container {
+            margin-top: 40px;
+            text-align: center;
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 1s ease 0.5s;
+        }
+
+        .slide.active .work-image-container {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .work-image {
+            max-width: 400px;
+            max-height: 300px;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            object-fit: cover;
+        }
+
         /* Color themes */
         .slide:nth-child(2) .artist-intro .name { color: #ff6b6b; text-shadow: 5px 5px 0px rgba(255, 107, 107, 0.3); }
         .slide:nth-child(3) .bio-content h2 { border-color: #ff6b6b; color: #ff6b6b; }
@@ -333,6 +356,9 @@
             <div class="work-description">
                 Erschienen 1987, erzählt die Geschichte von Axel, der von seiner Freundin verlassen wird und bei seinem schwulen Freund Norbert einzieht. Die Geschichte wurde 1994 erfolgreich verfilmt und ist eine der erfolgreichsten deutschen Filmkomödien. Der Comic behandelt mit viel Humor Themen wie Identität, Sexualität und Vorurteile und hat die LGBTQ+-Repräsentation in deutschen Comics maßgeblich geprägt.
             </div>
+            <div class="work-image-container">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Ralf_K%C3%B6nig_Der_bewegte_Mann.jpg/330px-Ralf_K%C3%B6nig_Der_bewegte_Mann.jpg" alt="Der bewegte Mann Cover" class="work-image">
+            </div>
         </div>
     </div>
 
@@ -363,6 +389,9 @@
             <div class="work-description">
                 Diese biografische Graphic Novel aus dem Jahr 2008 erzählt die wahre Geschichte von Richard Sorge, einem deutschen Journalisten und Spion, der im Zweiten Weltkrieg in Japan für die Sowjetunion spionierte. Kreitz verbrachte Jahre mit der Recherche und schuf ein beeindruckendes Werk, das historische Genauigkeit mit packender Erzählkunst vereint. Der Comic wurde mit dem Max-und-Moritz-Preis ausgezeichnet.
             </div>
+            <div class="work-image-container">
+                <img src="https://www.carlsen.de/sites/default/files/styles/header_banner_1400x400/public/2022-05/csm_Die%20Sache%20mit%20Sorge.jpg" alt="Die Sache mit Sorge" class="work-image">
+            </div>
         </div>
     </div>
 
@@ -392,6 +421,9 @@
             <div class="work-title">Hector Umbra</div>
             <div class="work-description">
                 Diese Fantasy-Serie (1989-1990) folgt den Abenteuern des mysteriösen Hector Umbra durch magische Welten voller Mysterien und Gefahren. Die Geschichte verbindet Elemente des klassischen Fantasy-Abenteuers mit surrealen und philosophischen Elementen. Oesterles filigraner Zeichenstil und seine Fähigkeit, fantastische Welten zum Leben zu erwecken, machten die Serie zu einem Meisterwerk des deutschen Fantasy-Comics.
+            </div>
+            <div class="work-image-container">
+                <img src="https://www.comicguide.de/pics/medium/58/58424.jpg" alt="Hector Umbra" class="work-image">
             </div>
         </div>
     </div>
@@ -454,7 +486,6 @@
             }
         });
 
-        // --- Handy / Touch / normales Drücken --- //
         document.addEventListener('click', () => {
             // Ein Klick oder Tippen geht zur nächsten Folie
             showSlide(currentSlide + 1);
