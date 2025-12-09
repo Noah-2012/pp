@@ -5,54 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noadsch12 - Projekte</title>
     <link rel="stylesheet" href="https://noadsch12.com/style/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>Meine Projekte</h2>
-                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Sidebar umschalten">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
+        <div class="sidebar" id="mySidebar"> <div class="sidebar-header"> <h2>Meine Projekte</h2>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-chevron-left"></i> </button>
             </div>
-            <nav class="sidebar-content">
-                <ul class="repo-list" id="repoList"></ul>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <header class="nav-bar">
-                <nav class="nav-tabs">
-                    <button class="nav-tab active" id="homeTab" data-tab="home">Home</button>
-                    <button class="nav-tab" id="aboutMeTab" data-tab="about">About Me</button>
-                    <button class="nav-tab" id="futureProjectsTab" data-tab="future">Future Projects</button>
-                </nav>
-                <div class="clock" id="clock" aria-live="polite">00:00:00</div>
-            </header>
-
-            <div class="content-area">
-                <section class="title-container" id="titleContainer">
-                    <h1>Noadsch12</h1>
-                </section>
-                
-                <section class="about-me-container" id="aboutMeContainer" aria-labelledby="aboutMeTab"></section>
-                
-                <section class="future-projects-container" id="futureProjectsContainer" aria-labelledby="futureProjectsTab"></section>
-                
-                <article class="readme-container" id="readmeContainer"></article>
-                
-                <div class="repo-actions" id="repoActions"></div>
+            <div class="sidebar-content"> <ul class="repo-list" id="repos"></ul>
             </div>
-        </main>
+        </div>
+        <div class="main-content">
+            <div class="nav-bar">
+                <div class="nav-tabs">
+                    <div class="nav-tab active" id="homeTab">Home</div>
+                    <div class="nav-tab" id="aboutMeTab">About Me</div>
+                    <div class="nav-tab" id="futureProjectsTab">Future Projects</div>
+                </div>
+                <div class="clock" id="clock">00:00:00</div>
+            </div>
+            <div class="title-container" id="titleContainer">
+                <h1>Noadsch12</h1>
+            </div>
+            <div class="about-me-container" id="aboutMeContainer"></div>
+            <div class="future-projects-container" id="futureProjectsContainer"></div>
+            <div class="readme-container" id="readmeContainer"></div>
+            <div class="repo-actions" id="repoActions"></div>
+        </div>
     </div>
-
-    <img src="https://64.media.tumblr.com/bede51b12c57730706086736c0799d59/d79b386dd434d7d8-3d/s100x200/6d04ab4ed8b39d3c36a4b53d65d8bd132b5f9904.pnj" 
-         class="gif1" 
-         alt="Dekoratives Element"
-         loading="lazy">
-
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <img src="https://64.media.tumblr.com/bede51b12c57730706086736c0799d59/d79b386dd434d7d8-3d/s100x200/6d04ab4ed8b39d3c36a4b53d65d8bd132b5f9904.pnj" class="gif1">
     <script src="scripts/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
