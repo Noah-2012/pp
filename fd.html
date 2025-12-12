@@ -4,81 +4,95 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GitHub File Browser</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     body{font-family:system-ui;margin:20px;color:#222}
     ul{list-style:none;padding-left:20px}
     li{margin:4px 0}
-    a{text-decoration:none;color:#064;cursor:pointer} /* Cursor pointer hinzugefügt */
+    a{text-decoration:none;color:#064;cursor:pointer}
     a:hover{text-decoration:underline}
     .muted{color:#777}
+    i{margin-right:8px;color:#555}
+    .fa-folder{color:#ffa500}
+    .fa-js{color:#f7df1e}
+    .fa-python{color:#3776ab}
+    .fa-java{color:#007396}
+    .fa-react{color:#61dafb}
+    .fa-html5{color:#e34c26}
+    .fa-css3-alt{color:#1572b6}
+    .fa-sass{color:#cc6699}
+    .fa-file-pdf{color:#e74c3c}
+    .fa-file-word{color:#2b5797}
+    .fa-file-excel{color:#217346}
+    .fa-file-image{color:#9b59b6}
+    .fa-file-video{color:#e74c3c}
+    .fa-file-audio{color:#1abc9c}
+    .fa-file-zipper{color:#95a5a6}
+    .fa-database{color:#f39c12}
+    .fa-php{color:#777bb4}
+    .fa-docker{color:#2496ed}
+    .fa-git-alt{color:#f05032}
+    .fa-markdown{color:#000}
+    .fa-android{color:#3ddc84}
+    .size{color:#999;font-size:0.9em;margin-left:10px}
+    .info{color:#999;font-size:0.9em;margin-left:10px}
 </style>
 </head>
 <body>
-
 <h2>Dateibrowser – Repository: noah-2012/pp</h2>
 <div id="path" class="muted"></div>
 <div id="list">Laden…</div>
-
 <script>
 const user = "noah-2012";
 const repo = "pp";
-
 // URL-Parameter ?p=pfad
 const params = new URLSearchParams(location.search);
 let currentPath = params.get("p") || "";
-
 function apiUrl(path){
     return `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
 }
-
 async function load(path){
     document.getElementById("path").textContent = "/" + path;
-
     try {
         const res = await fetch(apiUrl(path));
         
         if (!res.ok) throw new Error("Netzwerkfehler oder Pfad nicht gefunden");
         
         const data = await res.json();
-
         if(!Array.isArray(data)){
             // Das passiert, wenn man versehentlich eine Datei als Pfad angibt
             document.getElementById("list").innerHTML = "<p>Kein Verzeichnis.</p>";
             return;
         }
-
         let html = "<ul>";
-
         // ".." Link
         if(path !== ""){
             const up = path.split("/").slice(0, -1).join("/");
-            html += `<li>📁 <a href="?p=${encodeURIComponent(up)}">..</a></li>`;
+            html += `<li><a href="?p=${encodeURIComponent(up)}"><i class="fa-solid fa-folder"></i>..</a></li>`;
         }
-
         // Inhalte anzeigen
         for(const item of data){
             const name = item.name;
             const isDir = item.type === "dir";
             const fullPath = (path ? path + "/" : "") + name;
-
             if(isDir){
-                html += `<li>📁 <a href="?p=${encodeURIComponent(fullPath)}">${name}/</a></li>`;
+                html += `<li><a href="?p=${encodeURIComponent(fullPath)}"><i class="fa-solid fa-folder"></i>${name}/ <span class="info" data-path="${fullPath}">...</span></a></li>`;
             } else {
                 const ext = name.toLowerCase().split(".").pop();
+                const icon = getFileIcon(ext, name);
+                const size = formatFileSize(item.size);
                 // HTML Dateien normal öffnen, alles andere über den Downloader
                 if(ext === "html" || ext === "htm"){
-                    html += `<li>📄 <a target="_blank" href="${item.download_url}">${name}</a></li>`;
+                    html += `<li><a target="_blank" href="${item.download_url}">${icon}${name} <span class="size">${size}</span></a></li>`;
                 } else {
-                    html += `<li>📄 <a class="dl" data-url="${item.download_url}" data-name="${name}">${name}</a></li>`;
+                    html += `<li><a class="dl" data-url="${item.download_url}" data-name="${name}">${icon}${name} <span class="size">${size}</span></a></li>`;
                 }
             }
         }
-
         html += "</ul>";
         
         // 1. Erst HTML einfügen
         document.getElementById("list").innerHTML = html;
-
         // 2. DANN die Event Listener hinzufügen (und danach NICHT mehr das innerHTML anfassen)
         document.querySelectorAll('.dl').forEach(a => {
             a.addEventListener('click', ev => {
@@ -91,10 +105,119 @@ async function load(path){
                     .finally(() => { a.textContent = originalText; });
             });
         });
-
+        
+        // Ordnergrößen laden
+        document.querySelectorAll('.info').forEach(async span => {
+            const folderPath = span.dataset.path;
+            try {
+                const res = await fetch(apiUrl(folderPath));
+                if(res.ok){
+                    const folderData = await res.json();
+                    const count = Array.isArray(folderData) ? folderData.length : 0;
+                    span.textContent = `(${count} ${count === 1 ? 'Element' : 'Elemente'})`;
+                }
+            } catch(e){
+                span.textContent = '';
+            }
+        });
     } catch (e) {
         document.getElementById("list").innerHTML = `<p>Fehler: ${e.message}</p>`;
     }
+}
+
+// Icon-Funktion basierend auf Dateiendung
+function getFileIcon(ext, filename){
+    const iconMap = {
+        // Code
+        'js': '<i class="fa-brands fa-js"></i>',
+        'ts': '<i class="fa-solid fa-file-code"></i>',
+        'jsx': '<i class="fa-brands fa-react"></i>',
+        'tsx': '<i class="fa-brands fa-react"></i>',
+        'py': '<i class="fa-brands fa-python"></i>',
+        'java': '<i class="fa-brands fa-java"></i>',
+        'c': '<i class="fa-solid fa-file-code"></i>',
+        'cpp': '<i class="fa-solid fa-file-code"></i>',
+        'cs': '<i class="fa-solid fa-file-code"></i>',
+        'php': '<i class="fa-brands fa-php"></i>',
+        'rb': '<i class="fa-solid fa-file-code"></i>',
+        'go': '<i class="fa-solid fa-file-code"></i>',
+        'rs': '<i class="fa-solid fa-file-code"></i>',
+        'swift': '<i class="fa-brands fa-swift"></i>',
+        
+        // Web
+        'html': '<i class="fa-brands fa-html5"></i>',
+        'htm': '<i class="fa-brands fa-html5"></i>',
+        'css': '<i class="fa-brands fa-css3-alt"></i>',
+        'scss': '<i class="fa-brands fa-sass"></i>',
+        'sass': '<i class="fa-brands fa-sass"></i>',
+        'json': '<i class="fa-solid fa-file-code"></i>',
+        'xml': '<i class="fa-solid fa-file-code"></i>',
+        'yaml': '<i class="fa-solid fa-file-code"></i>',
+        'yml': '<i class="fa-solid fa-file-code"></i>',
+        
+        // Dokumente
+        'pdf': '<i class="fa-solid fa-file-pdf"></i>',
+        'doc': '<i class="fa-solid fa-file-word"></i>',
+        'docx': '<i class="fa-solid fa-file-word"></i>',
+        'txt': '<i class="fa-solid fa-file-lines"></i>',
+        'md': '<i class="fa-brands fa-markdown"></i>',
+        'rtf': '<i class="fa-solid fa-file-lines"></i>',
+        'xls': '<i class="fa-solid fa-file-excel"></i>',
+        'xlsx': '<i class="fa-solid fa-file-excel"></i>',
+        
+        // Bilder
+        'jpg': '<i class="fa-solid fa-file-image"></i>',
+        'jpeg': '<i class="fa-solid fa-file-image"></i>',
+        'png': '<i class="fa-solid fa-file-image"></i>',
+        'gif': '<i class="fa-solid fa-file-image"></i>',
+        'svg': '<i class="fa-solid fa-file-image"></i>',
+        'ico': '<i class="fa-solid fa-file-image"></i>',
+        'bmp': '<i class="fa-solid fa-file-image"></i>',
+        'webp': '<i class="fa-solid fa-file-image"></i>',
+        
+        // Audio/Video
+        'mp3': '<i class="fa-solid fa-file-audio"></i>',
+        'wav': '<i class="fa-solid fa-file-audio"></i>',
+        'ogg': '<i class="fa-solid fa-file-audio"></i>',
+        'flac': '<i class="fa-solid fa-file-audio"></i>',
+        'mp4': '<i class="fa-solid fa-file-video"></i>',
+        'avi': '<i class="fa-solid fa-file-video"></i>',
+        'mkv': '<i class="fa-solid fa-file-video"></i>',
+        'mov': '<i class="fa-solid fa-file-video"></i>',
+        
+        // Archive
+        'zip': '<i class="fa-solid fa-file-zipper"></i>',
+        'rar': '<i class="fa-solid fa-file-zipper"></i>',
+        'tar': '<i class="fa-solid fa-file-zipper"></i>',
+        'gz': '<i class="fa-solid fa-file-zipper"></i>',
+        '7z': '<i class="fa-solid fa-file-zipper"></i>',
+        
+        // Datenbanken
+        'sql': '<i class="fa-solid fa-database"></i>',
+        'db': '<i class="fa-solid fa-database"></i>',
+        'sqlite': '<i class="fa-solid fa-database"></i>',
+        
+        // Konfiguration
+        'env': '<i class="fa-solid fa-gear"></i>',
+        'config': '<i class="fa-solid fa-gear"></i>',
+        'conf': '<i class="fa-solid fa-gear"></i>',
+        'ini': '<i class="fa-solid fa-gear"></i>',
+        
+        // Verschiedenes
+        'sh': '<i class="fa-solid fa-terminal"></i>',
+        'bat': '<i class="fa-solid fa-terminal"></i>',
+        'exe': '<i class="fa-solid fa-file"></i>',
+        'apk': '<i class="fa-brands fa-android"></i>',
+        'gitignore': '<i class="fa-brands fa-git-alt"></i>',
+        'lock': '<i class="fa-solid fa-lock"></i>'
+    };
+    
+    // Spezielle Dateinamen
+    if(filename.toLowerCase() === 'dockerfile') return '<i class="fa-brands fa-docker"></i>';
+    if(filename.toLowerCase().includes('readme')) return '<i class="fa-solid fa-book"></i>';
+    if(filename.toLowerCase().includes('license')) return '<i class="fa-solid fa-certificate"></i>';
+    
+    return iconMap[ext] || '<i class="fa-solid fa-file"></i>';
 }
 
 // Download-Funktion
@@ -118,8 +241,15 @@ async function forceDownload(url, filename){
     }
 }
 
+// Dateigröße formatieren
+function formatFileSize(bytes){
+    if(bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
 load(currentPath);
 </script>
-
 </body>
 </html>
