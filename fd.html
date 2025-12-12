@@ -83,7 +83,7 @@ async function load(path){
                 const size = formatFileSize(item.size);
                 // HTML Dateien normal öffnen, alles andere über den Downloader
                 if(ext === "html" || ext === "htm"){
-                    html += `<li><a target="_blank" href="${item.download_url}">${icon}${name} <span class="size">${size}</span></a></li>`;
+                    html += `<li><a target="_blank" href="https://noadsch12.com/${fullPath}">${icon}${name} <span class="size">${size}</span></a></li>`;
                 } else {
                     html += `<li><a class="dl" data-url="${item.download_url}" data-name="${name}">${icon}${name} <span class="size">${size}</span></a></li>`;
                 }
